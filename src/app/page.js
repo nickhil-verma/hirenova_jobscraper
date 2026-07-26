@@ -167,9 +167,10 @@ export default function JobBoard() {
   const [uploadMessage, setUploadMessage] = useState('');
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
-  // Job Detail Slide Drawer State
+  // Job Detail Slide Drawer & Extension Guide Modal State
   const [selectedJobForDrawer, setSelectedJobForDrawer] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isExtensionGuideOpen, setIsExtensionGuideOpen] = useState(false);
 
   const searchInputRef = useRef(null);
   const searchTimeoutRef = useRef(null);
@@ -1180,9 +1181,16 @@ export default function JobBoard() {
             <h2 style={{ fontSize: '2.2rem', fontWeight: 800, fontFamily: 'var(--font-title)', margin: 0 }}>
               How Hirenova Works
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.4rem' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.4rem', marginBottom: '1.25rem' }}>
               Watch how our AI Command Center parses resumes, calculates ATS vectors, and automates applications.
             </p>
+            <button 
+              onClick={() => setIsExtensionGuideOpen(true)}
+              className="shad-btn shad-btn-primary hover-lift"
+              style={{ borderRadius: '25px', padding: '0.6rem 1.4rem', fontSize: '0.9rem', fontWeight: 700, gap: '0.4rem' }}
+            >
+              <Zap size={16} /> How to Install & Use Extension on PC ↗
+            </button>
           </div>
 
           {/* macOS-Style Window Container with GSAP ScrollTrigger Right to Left Entrance */}
@@ -1334,6 +1342,9 @@ export default function JobBoard() {
             </strong>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem' }}>
               <a href="#how-it-works" style={{ textDecoration: 'none', color: '#d4d4d8' }}>System Video Demo</a>
+              <button onClick={() => setIsExtensionGuideOpen(true)} style={{ background: 'none', border: 'none', padding: 0, color: '#d4d4d8', cursor: 'pointer', textAlign: 'left', font: 'inherit', fontSize: '0.88rem' }}>
+                Extension PC Setup Guide ↗
+              </button>
               <a href="#market-trends" style={{ textDecoration: 'none', color: '#d4d4d8' }}>Market Trends & Salary Index</a>
               <a href="#resume-upload" style={{ textDecoration: 'none', color: '#d4d4d8' }}>Upload Resume PDF</a>
               <Link href="/admin" className="shad-badge" style={{ textDecoration: 'none', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', width: 'fit-content', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', marginTop: '0.3rem', padding: '0.35rem 0.75rem', fontWeight: 700 }}>
@@ -1394,6 +1405,93 @@ export default function JobBoard() {
           </div>
         </div>
       </footer>
+
+      {/* CHROME EXTENSION INSTALLATION & USAGE MODAL */}
+      {isExtensionGuideOpen && (
+        <div className="shad-drawer-overlay" onClick={() => setIsExtensionGuideOpen(false)} style={{ zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div className="shad-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '740px', width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '2.5rem 2rem', background: '#ffffff', borderRadius: '24px', boxShadow: '0 25px 60px rgba(9, 9, 11, 0.25)', position: 'relative' }}>
+            <button onClick={() => setIsExtensionGuideOpen(false)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', border: 'none', background: '#f1f5f9', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={18} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
+              <div className="shad-badge" style={{ background: 'rgba(22, 163, 74, 0.1)', color: 'var(--brand-green)', borderColor: 'rgba(22, 163, 74, 0.2)', fontWeight: 700 }}>
+                <Zap size={13} style={{ marginRight: '0.3rem' }} /> CHROME EXTENSION MANIFEST V3
+              </div>
+            </div>
+
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, fontFamily: 'var(--font-title)', margin: '0 0 0.5rem 0', color: '#09090b' }}>
+              Install & Work with Hirenova Extension on PC
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '1.5rem' }}>
+              Autofill job applications and auto-attach your PC resume across Greenhouse, Lever, Workday, LinkedIn & Indeed in 1-click.
+            </p>
+
+            <a 
+              href="https://github.com/nickhil-verma/hirenova_jobscraper/tree/main/extension" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="shad-btn shad-btn-primary hover-lift" 
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '12px', padding: '0.75rem 1.25rem', textDecoration: 'none', marginBottom: '1.75rem', fontWeight: 700 }}
+            >
+              <Globe size={16} /> Open Extension Repository Folder on GitHub ↗
+            </a>
+
+            {/* Step-by-Step Installation Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.75rem' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.2rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-green)', textTransform: 'uppercase', marginBottom: '0.3rem' }}>STEP 1</div>
+                <strong style={{ fontSize: '0.95rem', color: '#09090b', display: 'block', marginBottom: '0.3rem' }}>Download / Clone Folder</strong>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                  Download the GitHub ZIP or run <code>git clone</code>. Locate the <code>/extension</code> folder containing <code>manifest.json</code>.
+                </p>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.2rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-green)', textTransform: 'uppercase', marginBottom: '0.3rem' }}>STEP 2</div>
+                <strong style={{ fontSize: '0.95rem', color: '#09090b', display: 'block', marginBottom: '0.3rem' }}>Open Extensions Page</strong>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                  In Chrome, Brave, or Edge, visit <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top right toggle).
+                </p>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.2rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-green)', textTransform: 'uppercase', marginBottom: '0.3rem' }}>STEP 3</div>
+                <strong style={{ fontSize: '0.95rem', color: '#09090b', display: 'block', marginBottom: '0.3rem' }}>Click "Load unpacked"</strong>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                  Click the <strong>Load unpacked</strong> button (top left header) and select your local PC <code>/extension</code> folder.
+                </p>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.2rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-green)', textTransform: 'uppercase', marginBottom: '0.3rem' }}>STEP 4</div>
+                <strong style={{ fontSize: '0.95rem', color: '#09090b', display: 'block', marginBottom: '0.3rem' }}>Pin & 1-Click Autofill</strong>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                  Pin 📌 the extension icon. Press <strong><code>Alt + Shift + A</code></strong> on any job form to autofill and attach resume!
+                </p>
+              </div>
+            </div>
+
+            {/* Keyboard Shortcuts Table */}
+            <div style={{ background: '#09090b', color: '#ffffff', borderRadius: '14px', padding: '1.25rem' }}>
+              <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#a1a1aa', display: 'block', marginBottom: '0.75rem' }}>
+                ⚡ Shortcut Reference Legend
+              </strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>1-GO Master Autofill & Resume Attach</span>
+                  <code style={{ background: 'rgba(255,255,255,0.15)', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.78rem', color: '#fff' }}>Alt + Shift + A</code>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Cycle Overlay Pill (Expanded / Minimized / Hidden)</span>
+                  <code style={{ background: 'rgba(255,255,255,0.15)', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.78rem', color: '#fff' }}>Ctrl + Q</code>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* SLIDE-OVER JOB DETAIL DRAWER */}
       {isDrawerOpen && selectedJobForDrawer && (
