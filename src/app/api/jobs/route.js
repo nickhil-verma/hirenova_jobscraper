@@ -53,7 +53,7 @@ export async function GET(request) {
 
     const jobs = await jobsCollection
       .find(query)
-      .sort({ 'updatedAt': -1 })
+      .sort({ 'updatedAt': -1, '_id': -1 })
       .skip(skip)
       .limit(limit)
       .toArray();

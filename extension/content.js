@@ -71,7 +71,7 @@ async function initiateOneGoAutofill() {
           executeFullAutofillAndAttach(stored.hirenova_user_profile, stored.hirenova_local_resume);
           return;
         }
-        showToastNotification('⚠️ Please log in to Hirenova at http://localhost:3000 to authenticate');
+        showToastNotification('⚠️ Please log in to Hirenova at https://hirenova-jobscraper.vercel.app to authenticate');
         return;
       }
 
@@ -95,10 +95,10 @@ async function initiateOneGoAutofill() {
       if (stored && stored.hirenova_user_profile) {
         executeFullAutofillAndAttach(stored.hirenova_user_profile, stored.hirenova_local_resume);
       } else {
-        showToastNotification('⚠️ Start Hirenova server on http://localhost:3000');
+        showToastNotification('⚠️ Please log in at https://hirenova-jobscraper.vercel.app');
       }
     } catch (e) {
-      showToastNotification('⚠️ Start Hirenova server on http://localhost:3000');
+      showToastNotification('⚠️ Please log in at https://hirenova-jobscraper.vercel.app');
     }
   }
 }

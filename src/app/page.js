@@ -165,6 +165,7 @@ export default function JobBoard() {
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadProgressStage, setUploadProgressStage] = useState('');
   const [uploadMessage, setUploadMessage] = useState('');
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // Job Detail Slide Drawer State
   const [selectedJobForDrawer, setSelectedJobForDrawer] = useState(null);
@@ -210,6 +211,7 @@ export default function JobBoard() {
 
   // Liked & Kanban Saved Job States
   const [likedJobIds, setLikedJobIds] = useState([]);
+  const [likedJobObjects, setLikedJobObjects] = useState({});
   const [savedKanbanJobIds, setSavedKanbanJobIds] = useState([]);
 
   // Fetch session on load
@@ -236,15 +238,20 @@ export default function JobBoard() {
     }
   };
 
-  const toggleLikeJob = async (jobId, jobData) => {
+  const toggleLikeJob = async (jobIdRaw, jobData) => {
     if (!user) {
       router.push('/login');
       return;
     }
-    const idStr = String(jobId);
+    const idStr = String(jobIdRaw || '');
+    if (!idStr) return;
     const isLiked = likedJobIds.includes(idStr);
     const updated = isLiked ? likedJobIds.filter(id => id !== idStr) : [...likedJobIds, idStr];
     setLikedJobIds(updated);
+
+    if (jobData && !isLiked) {
+      setLikedJobObjects(prev => ({ ...prev, [idStr]: jobData }));
+    }
 
     try {
       await fetch('/api/jobs/like', {
@@ -328,7 +335,7 @@ export default function JobBoard() {
 
   useEffect(() => {
     checkSession();
-    fetchData(1, search, false);
+    fetchData(page, search, false);
 
     const pollInterval = setInterval(() => {
       fetchData(page, search, true);
@@ -500,11 +507,20 @@ export default function JobBoard() {
   };
 
   const filterJobsList = (list, queryStr) => {
-    if (!queryStr || !queryStr.trim()) return list;
+    let filtered = list;
+
+    if (selectedCollection === 'liked') {
+      filtered = filtered.filter(job => {
+        const jobId = String(job._id || job.id || '');
+        return likedJobIds.includes(jobId);
+      });
+    }
+
+    if (!queryStr || !queryStr.trim()) return filtered;
     const q = queryStr.toLowerCase().trim();
     const tokens = q.replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 0);
 
-    return list.filter(job => {
+    return filtered.filter(job => {
       const details = job.v5_processed_job_data || {};
       const title = (job.job_information?.title || details.core_job_title || job.title || '').toLowerCase();
       const company = (details.company_name || job.company || '').toLowerCase();
@@ -523,8 +539,16 @@ export default function JobBoard() {
     });
   };
 
-  const rawJobsList = user ? jobs : mockDummyJobs;
-  const displayedJobs = filterJobsList(rawJobsList, search);
+  const baseJobs = user ? jobs : mockDummyJobs;
+  let allKnownJobs = [...baseJobs];
+  Object.values(likedJobObjects).forEach(lJob => {
+    const lId = String(lJob._id || lJob.id || '');
+    if (lId && !allKnownJobs.some(j => String(j._id || j.id || '') === lId)) {
+      allKnownJobs.push(lJob);
+    }
+  });
+
+  const displayedJobs = filterJobsList(allKnownJobs, search);
 
   return (
     <div style={{ background: 'radial-gradient(circle at top center, #eef2ff, #f8fafc 70%)', minHeight: '100vh', marginTop: '-6rem', paddingBottom: '4rem' }}>
@@ -534,42 +558,44 @@ export default function JobBoard() {
         className="floating-navbar"
         initial={{ width: '90%', maxWidth: '1200px' }}
         animate={{ 
-          width: scrolled ? '60%' : '90%',
-          maxWidth: scrolled ? '750px' : '1200px',
+          width: scrolled ? '84%' : '90%',
+          maxWidth: scrolled ? '1060px' : '1200px',
           padding: scrolled ? '0.5rem 1.4rem' : '0.75rem 2rem',
           boxShadow: scrolled ? '0 20px 45px rgba(0, 0, 0, 0.14)' : '0 10px 40px rgba(15, 23, 42, 0.06)',
-          background: scrolled ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.75)',
+          background: scrolled ? 'rgba(255, 255, 255, 0.94)' : 'rgba(255, 255, 255, 0.78)',
           borderRadius: scrolled ? '40px' : '50px'
         }}
         transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}
       >
-        <Link href="/" style={{ textDecoration: 'none', fontSize: scrolled ? '1.25rem' : '1.4rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-title)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.4rem', transition: 'font-size 0.2s ease' }}>
+        <Link href="/" style={{ textDecoration: 'none', fontSize: scrolled ? '1.2rem' : '1.35rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-title)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.4rem', transition: 'font-size 0.2s ease', flexShrink: 0, whiteSpace: 'nowrap' }}>
           Hirenova
         </Link>
 
-        <div style={{ display: 'flex', gap: scrolled ? '1rem' : '1.5rem', alignItems: 'center', fontSize: scrolled ? '0.82rem' : '0.88rem', fontWeight: 600, color: 'var(--text-secondary)', transition: 'all 0.2s ease' }}>
+        <div style={{ display: 'flex', gap: scrolled ? '0.9rem' : '1.35rem', alignItems: 'center', fontSize: scrolled ? '0.8rem' : '0.86rem', fontWeight: 600, color: 'var(--text-secondary)', transition: 'all 0.2s ease', flexShrink: 0, whiteSpace: 'nowrap' }}>
           <a href="#how-it-works" style={{ textDecoration: 'none', color: 'inherit' }}>How it Works</a>
           <a href="#market-trends" style={{ textDecoration: 'none', color: 'inherit' }}>Market Trends</a>
+          <a href="#resume-upload" style={{ textDecoration: 'none', color: 'inherit' }}>Upload Resume</a>
           <a href="#collections" style={{ textDecoration: 'none', color: 'inherit' }}>Job Collections</a>
         </div>
         
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
           {!checkingSession && (
             user ? (
               <>
-                <Link href="/dashboard" className="shad-btn shad-btn-primary" style={{ borderRadius: '25px', display: 'flex', gap: '0.4rem', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.8rem' : '0.85rem' }}>
+                <Link href="/dashboard" className="shad-btn shad-btn-primary" style={{ borderRadius: '25px', display: 'flex', gap: '0.4rem', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.78rem' : '0.83rem', whiteSpace: 'nowrap' }}>
                   AI Command Center <Sparkles size={14} />
                 </Link>
-                <button onClick={handleLogout} className="shad-btn shad-btn-outline" style={{ borderRadius: '25px', display: 'flex', gap: '0.4rem', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.8rem' : '0.85rem' }}>
+                <button onClick={handleLogout} className="shad-btn shad-btn-outline" style={{ borderRadius: '25px', display: 'flex', gap: '0.4rem', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.78rem' : '0.83rem', whiteSpace: 'nowrap' }}>
                   Sign Out <LogOut size={14} />
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="shad-btn shad-btn-outline" style={{ borderRadius: '25px', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.8rem' : '0.85rem' }}>
+                <Link href="/login" className="shad-btn shad-btn-outline" style={{ borderRadius: '25px', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.78rem' : '0.83rem', whiteSpace: 'nowrap' }}>
                   Log In
                 </Link>
-                <Link href="/signup" className="shad-btn shad-btn-primary" style={{ borderRadius: '25px', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.8rem' : '0.85rem' }}>
+                <Link href="/signup" className="shad-btn shad-btn-primary" style={{ borderRadius: '25px', height: scrolled ? '2rem' : '2.2rem', fontSize: scrolled ? '0.78rem' : '0.83rem', whiteSpace: 'nowrap' }}>
                   Sign Up
                 </Link>
               </>
@@ -663,39 +689,160 @@ export default function JobBoard() {
           </div>
         </section>
 
-        {/* 4. RESUME UPLOAD CTA */}
-        <section className="shad-card hover-lift" style={{ padding: '3rem', background: 'linear-gradient(135deg, #ffffff, #f1f5f9)', borderRadius: '24px', marginBottom: '5rem', boxShadow: 'var(--shadow)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2.5rem', alignItems: 'center' }}>
+        {/* 4. RESUME UPLOAD CTA - REDESIGNED PREMIUM GLASSMORPHIC CARD */}
+        <section id="resume-upload" className="shad-card hover-lift" style={{ padding: '3.5rem 3rem', background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)', borderRadius: '28px', marginBottom: '5rem', boxShadow: '0 20px 50px rgba(15, 23, 42, 0.08)', border: '1px solid rgba(226, 232, 240, 0.8)', position: 'relative', overflow: 'hidden' }}>
+          {/* Subtle Ambient Glow Blobs */}
+          <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(24, 24, 27, 0.06) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+          <div style={{ position: 'absolute', bottom: '-80px', left: '-80px', width: '260px', height: '260px', background: 'radial-gradient(circle, rgba(22, 163, 74, 0.06) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: '3rem', alignItems: 'center', position: 'relative', zIndex: 1 }}>
             <div>
-              <div className="shad-badge shad-badge-outline" style={{ background: 'rgba(22, 163, 74, 0.05)', color: 'var(--brand-green)', borderColor: 'rgba(22, 163, 74, 0.2)', marginBottom: '0.75rem' }}>
-                <Zap size={12} style={{ marginRight: '0.3rem' }} /> Instant Profile Generation
+              <div className="shad-badge" style={{ background: 'rgba(9, 9, 11, 0.05)', color: '#09090b', borderColor: 'rgba(9, 9, 11, 0.15)', padding: '0.4rem 0.9rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', letterSpacing: '0.03em' }}>
+                <Zap size={13} style={{ color: 'var(--brand-green)' }} /> INSTANT AI PARSER ENGINE
               </div>
-              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, fontFamily: 'var(--font-title)', margin: '0 0 0.75rem 0' }}>
-                Upload Your Resume to Unlock AI Command Center
+
+              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, fontFamily: 'var(--font-title)', letterSpacing: '-0.8px', margin: '0 0 1rem 0', lineHeight: 1.25, color: '#0f172a' }}>
+                Upload Your Resume to Unlock <span style={{ background: 'linear-gradient(135deg, #09090b 0%, #3f3f46 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Command Center</span>
               </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', margin: 0 }}>
+
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.02rem', lineHeight: '1.65', margin: '0 0 1.75rem 0' }}>
                 Our two-stage regex pre-segregator & Gemini parser extracts skills, YOE, and projects to run <strong>6-Second Recruiter Simulations</strong> and calculate 7-factor ATS match vectors.
               </p>
+
+              {/* Feature Bullet Badges */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                {[
+                  { text: '7-Factor ATS Match Score', icon: Award },
+                  { text: '6-Sec Recruiter Simulator', icon: Sparkles },
+                  { text: 'Automated Skill Gap Analysis', icon: CheckCircle2 },
+                  { text: '100% Private Local Storage', icon: ShieldCheck }
+                ].map((feat, fIdx) => {
+                  const FeatIcon = feat.icon;
+                  return (
+                    <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(22, 163, 74, 0.1)', color: 'var(--brand-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <FeatIcon size={13} />
+                      </div>
+                      <span>{feat.text}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Resume File Upload Drag and Drop Box */}
-            <form onSubmit={handleLandingResumeUpload} style={{ background: '#fff', border: '2px dashed hsl(var(--border))', borderRadius: '20px', padding: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-              <UploadCloud size={36} style={{ color: 'var(--brand-violet)' }} />
+            {/* Interactive Drag & Drop Box Card */}
+            <form 
+              onSubmit={handleLandingResumeUpload}
+              onDragOver={(e) => { e.preventDefault(); setIsDraggingOver(true); }}
+              onDragLeave={() => setIsDraggingOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingOver(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) setResumeFile(file);
+              }}
+              style={{ 
+                background: isDraggingOver ? 'rgba(244, 244, 245, 0.95)' : '#ffffff', 
+                border: isDraggingOver ? '2px dashed #09090b' : '2px dashed rgba(9, 9, 11, 0.18)', 
+                borderRadius: '24px', 
+                padding: '2.25rem 2rem', 
+                textAlign: 'center', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: '1rem',
+                boxShadow: isDraggingOver ? '0 12px 30px rgba(9, 9, 11, 0.12)' : '0 8px 24px rgba(0, 0, 0, 0.04)',
+                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                cursor: 'pointer',
+                position: 'relative'
+              }}
+              onClick={() => {
+                const inputEl = document.getElementById('landing-resume-file-input');
+                if (inputEl) inputEl.click();
+              }}
+            >
               <input 
+                id="landing-resume-file-input"
                 type="file" 
-                accept=".pdf,.txt" 
+                accept=".pdf,.txt,.doc,.docx" 
                 onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                style={{ fontSize: '0.85rem' }}
+                style={{ display: 'none' }}
               />
+
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, #09090b, #27272a)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(9, 9, 11, 0.2)', transition: 'transform 0.3s ease' }} className="hover-lift">
+                <UploadCloud size={30} />
+              </div>
+
+              {!resumeFile ? (
+                <>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.25rem 0', fontFamily: 'var(--font-title)' }}>
+                      Drag & Drop your resume here
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', margin: 0 }}>
+                      or <span style={{ color: '#09090b', fontWeight: 700, textDecoration: 'underline' }}>browse from your PC</span>
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    {['PDF', 'DOCX', 'TXT'].map((ext, eIdx) => (
+                      <span key={eIdx} style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.25rem 0.55rem', borderRadius: '6px', background: '#f1f5f9', color: '#475569', border: '1px solid rgba(0,0,0,0.05)' }}>
+                        {ext}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div style={{ width: '100%', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '0.85rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', overflow: 'hidden' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(22, 163, 74, 0.1)', color: 'var(--brand-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <FileText size={18} />
+                    </div>
+                    <div style={{ textAlign: 'left', overflow: 'hidden' }}>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {resumeFile.name}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                        {(resumeFile.size / (1024 * 1024)).toFixed(2)} MB • Ready to Parse
+                      </div>
+                    </div>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={(e) => { e.stopPropagation(); setResumeFile(null); setUploadMessage(''); }} 
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '0.2rem' }}
+                    title="Remove file"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
+
               <button 
                 type="submit" 
                 disabled={!resumeFile || uploadingResume}
+                onClick={(e) => e.stopPropagation()}
                 className="shad-btn shad-btn-primary" 
-                style={{ width: '100%', borderRadius: '10px', height: '2.6rem' }}
+                style={{ width: '100%', borderRadius: '12px', height: '2.85rem', fontSize: '0.92rem', fontWeight: 700, background: 'linear-gradient(135deg, #09090b 0%, #27272a 100%)', boxShadow: '0 6px 18px rgba(9, 9, 11, 0.18)', transition: 'all 0.2s ease' }}
               >
-                {uploadingResume ? uploadProgressStage || 'Processing...' : 'Upload & View Command Center'}
+                {uploadingResume ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+                    <span className="spinner" style={{ width: '16px', height: '16px' }} />
+                    {uploadProgressStage || 'Processing Resume...'}
+                  </span>
+                ) : (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+                    Upload & View Command Center <ArrowRight size={15} />
+                  </span>
+                )}
               </button>
-              {uploadMessage && <span style={{ fontSize: '0.82rem', color: 'var(--brand-green)', fontWeight: 600 }}>{uploadMessage}</span>}
+
+              {uploadMessage && (
+                <div style={{ fontSize: '0.82rem', color: uploadMessage.includes('⚠️') || uploadMessage.includes('Failed') ? '#ef4444' : 'var(--brand-green)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  {uploadMessage.includes('⚠️') ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
+                  {uploadMessage}
+                </div>
+              )}
             </form>
           </div>
         </section>
@@ -736,7 +883,9 @@ export default function JobBoard() {
                   key={col.id}
                   onClick={() => {
                     setSelectedCollection(col.id);
-                    if (col.id !== 'liked') {
+                    if (col.id === 'liked') {
+                      setSearch('');
+                    } else {
                       handleCollectionSelect(col.id, col.query);
                     }
                   }}
@@ -817,35 +966,55 @@ export default function JobBoard() {
           ) : displayedJobs.length === 0 ? (
             /* Elegant Empty State Illustration */
             <div className="shad-card" style={{ padding: '4rem 2rem', textAlign: 'center', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <SearchX size={48} style={{ color: 'var(--text-tertiary)' }} />
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>No Jobs Match Your Query</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '440px', margin: 0 }}>
-                Try searching for broader technical terms like "React", "Python", "Full Stack", or clear your filter parameters.
-              </p>
-              <button 
-                onClick={() => { setSearch(''); setSelectedCollection('all'); setSelectedCategory('all'); fetchData(1, '', false); }}
-                className="shad-btn shad-btn-outline" 
-                style={{ borderRadius: '20px' }}
-              >
-                Clear Search Filter
-              </button>
+              {selectedCollection === 'liked' ? (
+                <>
+                  <Heart size={48} style={{ color: '#ef4444' }} />
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>No Liked Jobs Saved Yet</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '440px', margin: 0 }}>
+                    Click the ❤️ heart icon on any job card to save it to your personal Liked Jobs collection.
+                  </p>
+                  <button 
+                    onClick={() => { setSearch(''); setSelectedCollection('all'); setSelectedCategory('all'); fetchData(1, '', false); }}
+                    className="shad-btn shad-btn-primary" 
+                    style={{ borderRadius: '20px' }}
+                  >
+                    Explore All Open Jobs
+                  </button>
+                </>
+              ) : (
+                <>
+                  <SearchX size={48} style={{ color: 'var(--text-tertiary)' }} />
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>No Jobs Match Your Query</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '440px', margin: 0 }}>
+                    Try searching for broader technical terms like "React", "Python", "Full Stack", or clear your filter parameters.
+                  </p>
+                  <button 
+                    onClick={() => { setSearch(''); setSelectedCollection('all'); setSelectedCategory('all'); fetchData(1, '', false); }}
+                    className="shad-btn shad-btn-outline" 
+                    style={{ borderRadius: '20px' }}
+                  >
+                    Clear Search Filter
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <div style={{ filter: !user ? 'blur(6px)' : 'none', pointerEvents: !user ? 'none' : 'auto', userSelect: !user ? 'none' : 'auto', transition: 'all 0.3s ease' }}>
               <div className="jobs-grid">
                 {displayedJobs.map((job) => {
+                  const jobId = String(job._id || job.id || '');
                   const details = job.v5_processed_job_data || {};
                   const skills = details.technical_tools || [];
                   const companyName = details.company_name || job.company || 'Unknown Company';
                   const jobTitle = job.job_information?.title || details.core_job_title || job.title || 'Software Specialist';
                   const compString = formatCompensation(details);
                   const logoUrl = getCompanyLogoUrl(job);
-                  const isLiked = likedJobIds.includes(String(job.id));
-                  const isKanbanSaved = savedKanbanJobIds.includes(String(job.id));
+                  const isLiked = likedJobIds.includes(jobId);
+                  const isKanbanSaved = savedKanbanJobIds.includes(jobId);
 
                   return (
                     <div 
-                      key={job.id} 
+                      key={jobId} 
                       onClick={() => openJobDrawer({ ...job, company: companyName, title: jobTitle, requirementsSummary: details.requirements_summary || job.job_information?.description, applyUrl: job.apply_url })} 
                       className="shad-card hover-lift" 
                       style={{ background: '#fff', cursor: 'pointer' }}
@@ -873,7 +1042,7 @@ export default function JobBoard() {
                           </div>
 
                           <button 
-                            onClick={(e) => { e.stopPropagation(); toggleLikeJob(job.id, job); }}
+                            onClick={(e) => { e.stopPropagation(); toggleLikeJob(jobId, job); }}
                             style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem', display: 'flex', alignItems: 'center' }}
                             title={isLiked ? "Unlike job" : "Like job"}
                           >
@@ -1109,66 +1278,99 @@ export default function JobBoard() {
 
       </div>
 
-      {/* REDESIGNED 4-COLUMN GLASS FOOTER */}
-      <footer style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(0, 0, 0, 0.06)', paddingTop: '4rem', paddingBottom: '2rem', marginTop: '4rem' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1.2fr', gap: '3rem', marginBottom: '3rem' }}>
+      {/* REDESIGNED SLEEK DARK GLASS FOOTER WITH TIGHT MARGINS */}
+      <footer style={{ background: '#09090b', color: '#ffffff', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '2.5rem', paddingBottom: '1.25rem', marginTop: '2.5rem', marginBottom: 0, position: 'relative', overflow: 'hidden' }}>
+        {/* Subtle ambient lighting blob */}
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '600px', height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)' }} />
+        
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1.3fr', gap: '3rem', marginBottom: '2.5rem', paddingTop: 0, paddingBottom: 0 }}>
           
           {/* Column 1: Brand & Mission */}
           <div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, fontFamily: 'var(--font-title)', margin: '0 0 0.75rem 0' }}>Hirenova</h3>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.6', margin: '0 0 1.25rem 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.9rem' }}>
+              <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 10px #16a34a' }} />
+              <h3 style={{ fontSize: '1.45rem', fontWeight: 800, fontFamily: 'var(--font-title)', color: '#ffffff', margin: 0, letterSpacing: '-0.5px' }}>
+                Hirenova
+              </h3>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.1)', color: '#a1a1aa', border: '1px solid rgba(255,255,255,0.15)' }}>
+                AI Native
+              </span>
+            </div>
+            
+            <p style={{ fontSize: '0.88rem', color: '#a1a1aa', lineHeight: '1.65', margin: '0 0 1.5rem 0', maxWidth: '340px' }}>
               The AI-native career command platform empowering developers to analyze resumes, simulate recruiter scans, and land technical roles faster.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <a href="https://github.com" target="_blank" rel="noreferrer" className="shad-btn shad-btn-outline" style={{ width: '32px', height: '32px', padding: 0, borderRadius: '50%', justifyContent: 'center' }}><Globe size={15} /></a>
-              <a href="https://twitter.com" target="_blank" rel="noreferrer" className="shad-btn shad-btn-outline" style={{ width: '32px', height: '32px', padding: 0, borderRadius: '50%', justifyContent: 'center' }}><Share2 size={15} /></a>
-              <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="shad-btn shad-btn-outline" style={{ width: '32px', height: '32px', padding: 0, borderRadius: '50%', justifyContent: 'center' }}><ExternalLink size={15} /></a>
+
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              <a href="https://github.com/nickhil-verma/hirenova_jobscraper" target="_blank" rel="noreferrer" className="hover-lift" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }} title="GitHub Repository">
+                <Globe size={16} />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noreferrer" className="hover-lift" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }} title="Twitter / X">
+                <Share2 size={16} />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover-lift" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }} title="LinkedIn">
+                <ExternalLink size={16} />
+              </a>
             </div>
           </div>
 
           {/* Column 2: Product Links */}
           <div>
-            <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-primary)', display: 'block', marginBottom: '1rem' }}>Product</strong>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-              <Link href="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>AI Command Center</Link>
-              <Link href="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>Resume Analyzer</Link>
-              <Link href="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>Recruiter Simulator</Link>
-              <Link href="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>Application Kanban</Link>
+            <strong style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#71717a', display: 'block', marginBottom: '1.25rem', fontWeight: 700 }}>
+              Product Features
+            </strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem' }}>
+              <Link href="/dashboard" style={{ textDecoration: 'none', color: '#d4d4d8', transition: 'color 0.2s ease' }} className="hover-text-white">AI Command Center ↗</Link>
+              <Link href="/dashboard" style={{ textDecoration: 'none', color: '#d4d4d8', transition: 'color 0.2s ease' }}>Resume Analyzer & Heatmap</Link>
+              <Link href="/dashboard" style={{ textDecoration: 'none', color: '#d4d4d8', transition: 'color 0.2s ease' }}>6-Sec Recruiter Simulator</Link>
+              <Link href="/dashboard" style={{ textDecoration: 'none', color: '#d4d4d8', transition: 'color 0.2s ease' }}>Application Journey Kanban</Link>
             </div>
           </div>
 
-          {/* Column 3: Resource Links */}
+          {/* Column 3: Platform Resources */}
           <div>
-            <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-primary)', display: 'block', marginBottom: '1rem' }}>Resources</strong>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-              <a href="#market-trends" style={{ textDecoration: 'none', color: 'inherit' }}>Market Trends</a>
-              <a href="#how-it-works" style={{ textDecoration: 'none', color: 'inherit' }}>How it Works</a>
-              <Link href="/admin" className="shad-badge shad-badge-outline hover-lift" style={{ textDecoration: 'none', color: 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', width: 'fit-content', background: '#fff', marginTop: '0.3rem', padding: '0.35rem 0.75rem', fontWeight: 700, borderColor: 'rgba(0,0,0,0.15)' }}>
-                <ShieldCheck size={14} style={{ color: 'var(--brand-green)' }} /> Admin Console ↗
+            <strong style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#71717a', display: 'block', marginBottom: '1.25rem', fontWeight: 700 }}>
+              Platform Resources
+            </strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem' }}>
+              <a href="#how-it-works" style={{ textDecoration: 'none', color: '#d4d4d8' }}>System Video Demo</a>
+              <a href="#market-trends" style={{ textDecoration: 'none', color: '#d4d4d8' }}>Market Trends & Salary Index</a>
+              <a href="#resume-upload" style={{ textDecoration: 'none', color: '#d4d4d8' }}>Upload Resume PDF</a>
+              <Link href="/admin" className="shad-badge" style={{ textDecoration: 'none', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', width: 'fit-content', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', marginTop: '0.3rem', padding: '0.35rem 0.75rem', fontWeight: 700 }}>
+                <ShieldCheck size={14} style={{ color: '#16a34a' }} /> Admin Console ↗
               </Link>
             </div>
           </div>
 
           {/* Column 4: Newsletter */}
           <div>
-            <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-primary)', display: 'block', marginBottom: '1rem' }}>Stay Updated</strong>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>Subscribe for weekly market demand and engineering salary updates.</p>
+            <strong style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#71717a', display: 'block', marginBottom: '1.25rem', fontWeight: 700 }}>
+              Stay Ahead in Tech
+            </strong>
+            <p style={{ fontSize: '0.85rem', color: '#a1a1aa', lineHeight: '1.5', marginBottom: '1rem' }}>
+              Weekly tech salary benchmarks, AI application trends, and engineering role alerts.
+            </p>
             {newsletterSubscribed ? (
-              <span style={{ fontSize: '0.82rem', color: 'var(--brand-green)', fontWeight: 600 }}>✓ Subscribed to newsletter!</span>
+              <div style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 700, padding: '0.6rem 0.8rem', borderRadius: '10px', background: 'rgba(22, 163, 74, 0.1)', border: '1px solid rgba(22, 163, 74, 0.2)' }}>
+                ✓ Subscribed! You will receive weekly updates.
+              </div>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setNewsletterSubscribed(true); }} style={{ display: 'flex', gap: '0.4rem' }}>
-                <input 
-                  type="email" 
-                  required 
-                  placeholder="name@company.com" 
-                  className="shad-input" 
-                  style={{ fontSize: '0.82rem', height: '2.2rem' }}
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                />
-                <button type="submit" className="shad-btn shad-btn-primary" style={{ height: '2.2rem', padding: '0 0.8rem' }}>
-                  Subscribe
-                </button>
+              <form onSubmit={(e) => { e.preventDefault(); setNewsletterSubscribed(true); }} style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  <input 
+                    type="email" 
+                    required 
+                    placeholder="dev@company.com" 
+                    className="shad-input" 
+                    style={{ fontSize: '0.85rem', height: '2.4rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#ffffff', borderRadius: '10px' }}
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                  />
+                  <button type="submit" className="shad-btn" style={{ height: '2.4rem', padding: '0 1rem', background: '#ffffff', color: '#09090b', fontWeight: 700, borderRadius: '10px', flexShrink: 0 }}>
+                    Subscribe
+                  </button>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: '#71717a' }}>🔒 Zero spam. Unsubscribe anytime.</span>
               </form>
             )}
           </div>
@@ -1176,15 +1378,18 @@ export default function JobBoard() {
         </div>
 
         {/* Bottom Footer Bar */}
-        <div className="container" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+        <div className="container" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1.25rem', paddingBottom: '1.25rem', marginTop: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem', fontSize: '0.82rem', color: '#71717a' }}>
           <div>
-            <span>All rights are reserved with Hirenova built by github-Nickhil-verma • Built for Software Engineers</span>
+            <span>© 2026 Hirenova • Built for Software Engineers by <a href="https://github.com/nickhil-verma" target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 600 }}>Nickhil Verma</a></span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.72rem' }}>v2.4.0</span>
-            <button onClick={scrollToTop} className="shad-btn shad-btn-outline" style={{ borderRadius: '20px', height: '1.8rem', padding: '0 0.6rem', fontSize: '0.75rem', gap: '0.2rem' }}>
-              Top <ArrowUp size={12} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: '#16a34a', background: 'rgba(22, 163, 74, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '9999px', border: '1px solid rgba(22, 163, 74, 0.2)', fontWeight: 600 }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} /> All Systems Operational
+            </span>
+            <span className="shad-badge" style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.08)', color: '#a1a1aa', border: '1px solid rgba(255,255,255,0.1)' }}>v2.4.0</span>
+            <button onClick={scrollToTop} className="shad-btn" style={{ borderRadius: '20px', height: '2rem', padding: '0 0.8rem', fontSize: '0.78rem', gap: '0.25rem', background: 'rgba(255,255,255,0.1)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
+              Top <ArrowUp size={13} />
             </button>
           </div>
         </div>

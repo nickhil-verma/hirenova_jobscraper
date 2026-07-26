@@ -2,10 +2,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'FETCH_SESSION') {
     (async () => {
       try {
-        // Read localhost cookie if available
+        // Read Hirenova cookie if available
         let cookieToken = null;
         try {
-          const cookie = await chrome.cookies.get({ url: 'http://localhost:3000', name: 'session_token' });
+          const cookie = await chrome.cookies.get({ url: 'https://hirenova-jobscraper.vercel.app', name: 'session_token' });
           if (cookie && cookie.value) {
             cookieToken = cookie.value;
           }
@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           headers['X-Session-Token'] = cookieToken;
         }
 
-        const res = await fetch('http://localhost:3000/api/auth/session', {
+        const res = await fetch('https://hirenova-jobscraper.vercel.app/api/auth/session', {
           headers,
           credentials: 'include'
         });

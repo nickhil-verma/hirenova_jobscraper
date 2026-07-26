@@ -66,6 +66,91 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (modeMinimizedBtn) modeMinimizedBtn.addEventListener('click', () => setPillMode('minimized'));
   if (modeHiddenBtn) modeHiddenBtn.addEventListener('click', () => setPillMode('hidden'));
 
+  // Live Job Feed & Notifications Elements with 2.5-Hour Local Cache TTL
+  const fetchJobsBtn = document.getElementById('fetch-jobs-btn');
+  const jobListEl = document.getElementById('job-notifications-list');
+  const JOB_CACHE_TTL_MS = 2.5 * 60 * 60 * 1000; // 2.5 Hours TTL
+
+  async function fetchJobNotifications(forceRefresh = false) {
+    if (!jobListEl) return;
+
+    if (!forceRefresh) {
+      // Check local chrome.storage.local cache first
+      try {
+        const cached = await chrome.storage.local.get(['hirenova_cached_jobs', 'hirenova_jobs_cache_timestamp']);
+        const now = Date.now();
+        const timestamp = cached.hirenova_jobs_cache_timestamp || 0;
+        const timeDiff = now - timestamp;
+
+        if (cached.hirenova_cached_jobs && cached.hirenova_cached_jobs.length > 0 && timeDiff < JOB_CACHE_TTL_MS) {
+          const minutesAgo = Math.floor(timeDiff / (60 * 1000));
+          const cacheLabel = minutesAgo < 1 ? 'Just now' : `${minutesAgo}m ago`;
+          renderJobNotifications(cached.hirenova_cached_jobs, `Cached (${cacheLabel})`);
+          return;
+        }
+      } catch (e) {}
+    }
+
+    jobListEl.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:0.5rem;">⚡ Fetching live job notifications...</div>';
+
+    try {
+      const res = await fetch('https://hirenova-jobscraper.vercel.app/api/jobs?limit=5');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.jobs) && data.jobs.length > 0) {
+          await chrome.storage.local.set({
+            hirenova_cached_jobs: data.jobs,
+            hirenova_jobs_cache_timestamp: Date.now()
+          });
+          renderJobNotifications(data.jobs, 'Live Feed');
+          return;
+        }
+      }
+      jobListEl.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:0.5rem;">No active job alerts found right now.</div>';
+    } catch (err) {
+      console.error('[Hirenova Extension] Failed to fetch job notifications:', err);
+      // Fallback to cached jobs if network fails
+      const cached = await chrome.storage.local.get('hirenova_cached_jobs');
+      if (cached && cached.hirenova_cached_jobs && cached.hirenova_cached_jobs.length > 0) {
+        renderJobNotifications(cached.hirenova_cached_jobs, 'Offline Cache');
+      } else {
+        jobListEl.innerHTML = '<div style="font-size:0.75rem; color:#ef4444; text-align:center; padding:0.5rem;">⚠️ Offline or Server Disconnected</div>';
+      }
+    }
+  }
+
+  function renderJobNotifications(jobsList, statusTag = 'Live Feed') {
+    if (!jobListEl) return;
+    jobListEl.innerHTML = '';
+    jobsList.forEach(job => {
+      const title = job.job_information?.title || job.title || 'Software Engineer';
+      const company = job.v5_processed_job_data?.company_name || job.company || 'Tech Company';
+      const location = job.v5_processed_job_data?.formatted_workplace_location || job.location || 'Remote';
+      const applyUrl = job.apply_url || job.job_information?.apply_url || 'https://hirenova-jobscraper.vercel.app/dashboard';
+
+      const item = document.createElement('div');
+      item.className = 'job-notice-item';
+      item.innerHTML = `
+        <div class="job-notice-title">
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:210px;">${company} • ${title}</span>
+          <a href="${applyUrl}" target="_blank" style="font-size:0.68rem; font-weight:700; color:#09090b; text-decoration:none; background:#e4e4e7; padding:0.15rem 0.4rem; border-radius:4px;">Apply ↗</a>
+        </div>
+        <div class="job-notice-meta">
+          <span class="job-notice-badge">${location}</span>
+          <span style="color:#71717a; font-size:0.68rem;">${statusTag}</span>
+        </div>
+      `;
+      jobListEl.appendChild(item);
+    });
+  }
+
+  if (fetchJobsBtn) {
+    fetchJobsBtn.addEventListener('click', () => fetchJobNotifications(true)); // Force refresh on click
+  }
+
+  // Load from local cache (or fetch if > 2.5 hours old)
+  fetchJobNotifications(false);
+
   // File Picker Click
   selectResumeBtn.addEventListener('click', () => {
     fileInput.click();
@@ -164,7 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Sync User Session Helper
   async function syncUserSession() {
     try {
-      const res = await fetch('http://localhost:3000/api/auth/session', { credentials: 'include' });
+      const res = await fetch('https://hirenova-jobscraper.vercel.app/api/auth/session', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
@@ -194,7 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       badge.textContent = 'Offline';
       badge.className = 'status-badge';
       nameEl.textContent = 'Not Logged In';
-      detailsEl.textContent = 'Log in at http://localhost:3000 to authenticate';
+      detailsEl.textContent = 'Log in at https://hirenova-jobscraper.vercel.app to authenticate';
       masterBtn.disabled = true;
     } catch (e) {
       console.error('[Hirenova Extension] Session error:', e);
@@ -212,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       badge.textContent = 'Offline';
       badge.className = 'status-badge';
       nameEl.textContent = 'Server Disconnected';
-      detailsEl.textContent = 'Start Hirenova server on localhost:3000';
+      detailsEl.textContent = 'Log in at https://hirenova-jobscraper.vercel.app';
       masterBtn.disabled = true;
     }
   }
