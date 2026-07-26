@@ -552,7 +552,7 @@ export default function JobBoard() {
   const displayedJobs = filterJobsList(allKnownJobs, search);
 
   return (
-    <div style={{ background: 'radial-gradient(circle at top center, #eef2ff, #f8fafc 70%)', minHeight: '100vh', marginTop: '-6rem', paddingBottom: '4rem' }}>
+    <div style={{ background: 'radial-gradient(circle at top center, #eef2ff, #f8fafc 70%)', minHeight: '100vh', marginTop: '-6rem', paddingBottom: 0 }}>
 
       {/* 1. FLOATING GLASS NAVBAR WITH FRAMER MOTION SCROLL ANIMATION */}
       <motion.header
