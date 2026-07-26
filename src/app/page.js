@@ -849,17 +849,58 @@ export default function JobBoard() {
           </div>
         </section>
 
-        {/* 5. LIVE HIRING ACTIVITY */}
-        <section className="shad-card" style={{ padding: '1.25rem 2rem', background: '#fff', marginBottom: '5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--brand-green)', display: 'inline-block', boxShadow: '0 0 0 3px rgba(22, 163, 74, 0.2)' }} />
-            <strong style={{ fontSize: '0.88rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Live Hiring Activity Ticker</strong>
+        {/* 5. LIVE HIRING ACTIVITY - HIGH TECH RADAR MARQUEE STREAM */}
+        <section className="shad-card hover-lift" style={{ padding: '1rem 1.5rem', background: '#09090b', color: '#ffffff', marginBottom: '5rem', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.12)', boxShadow: '0 15px 40px rgba(9, 9, 11, 0.25)', display: 'flex', alignItems: 'center', gap: '1.5rem', overflow: 'hidden', position: 'relative' }}>
+          
+          {/* Radar Header Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'rgba(255, 255, 255, 0.08)', padding: '0.5rem 0.9rem', borderRadius: '50px', border: '1px solid rgba(255, 255, 255, 0.15)', flexShrink: 0, zIndex: 2 }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 12px #16a34a', display: 'inline-block' }} />
+            <strong style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#ffffff', fontFamily: 'var(--font-title)' }}>
+              LIVE RADAR
+            </strong>
           </div>
-          <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-            <span><Zap size={14} style={{ display: 'inline', color: 'var(--brand-green)' }} /> Stripe posted 3 Backend Engineer roles</span>
-            <span><CheckCircle2 size={14} style={{ display: 'inline', color: 'var(--brand-green)' }} /> Recruiter opened 12 candidate profiles</span>
-            <span><Database size={14} style={{ display: 'inline' }} /> 1,200+ Active postings indexed</span>
+
+          {/* Marquee Infinite Ticker Stream */}
+          <div style={{ overflow: 'hidden', flexGrow: 1, position: 'relative', maskImage: 'linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%)', WebkitMaskImage: 'linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%)' }}>
+            <div className="ticker-track">
+              {[
+                { icon: Zap, text: 'Stripe posted 3 Senior Backend Engineer roles ($195k)', time: '2m ago', color: '#16a34a' },
+                { icon: Sparkles, text: 'Recruiter ran 12 candidate ATS match vector simulations', time: '5m ago', color: '#6366f1' },
+                { icon: Globe, text: 'Vercel listed Developer Advocate position (Remote)', time: '12m ago', color: '#38bdf8' },
+                { icon: Building2, text: 'Linear hiring Product Engineer in London (Hybrid)', time: '18m ago', color: '#f59e0b' },
+                { icon: Database, text: '1,280+ Active Tech Postings Indexed in Real-Time', time: 'Live', color: '#a855f7' },
+                { icon: ShieldCheck, text: 'Gemini 1.5 Flash Parser synced 100% private local storage', time: 'Verified', color: '#16a34a' },
+                // Duplicated for continuous smooth marquee loop
+                { icon: Zap, text: 'Stripe posted 3 Senior Backend Engineer roles ($195k)', time: '2m ago', color: '#16a34a' },
+                { icon: Sparkles, text: 'Recruiter ran 12 candidate ATS match vector simulations', time: '5m ago', color: '#6366f1' },
+                { icon: Globe, text: 'Vercel listed Developer Advocate position (Remote)', time: '12m ago', color: '#38bdf8' },
+                { icon: Building2, text: 'Linear hiring Product Engineer in London (Hybrid)', time: '18m ago', color: '#f59e0b' },
+                { icon: Database, text: '1,280+ Active Tech Postings Indexed in Real-Time', time: 'Live', color: '#a855f7' },
+                { icon: ShieldCheck, text: 'Gemini 1.5 Flash Parser synced 100% private local storage', time: 'Verified', color: '#16a34a' }
+              ].map((evt, eIdx) => {
+                const EvtIcon = evt.icon;
+                return (
+                  <div key={eIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.85rem', color: '#e4e4e7', fontWeight: 600 }}>
+                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: evt.color, flexShrink: 0 }}>
+                      <EvtIcon size={12} />
+                    </div>
+                    <span>{evt.text}</span>
+                    <span style={{ fontSize: '0.7rem', color: '#71717a', background: 'rgba(255,255,255,0.06)', padding: '0.1rem 0.4rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {evt.time}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+
+          {/* Quick Counter Badges */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0, zIndex: 2 }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.3rem 0.7rem', borderRadius: '8px', background: 'rgba(22, 163, 74, 0.15)', color: '#4ade80', border: '1px solid rgba(22, 163, 74, 0.3)' }}>
+              1,280+ Active
+            </span>
+          </div>
+
         </section>
 
         {/* 6. FEATURED JOB COLLECTIONS */}
