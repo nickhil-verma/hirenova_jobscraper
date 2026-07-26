@@ -1637,60 +1637,175 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="shad-card" style={{ background: '#fff', padding: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>Interactive Score Breakdown (81%)</h3>
-                <span className="shad-badge shad-badge-outline" style={{ color: 'var(--brand-violet)' }}>Click any card for recommendations</span>
-              </div>
+            {/* CLAYMORPHIC BENTO GRID COVERING ALL 7 RESUME ASPECTS */}
+            <div className="bento-grid-heatmap">
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', textAlign: 'center' }}>
-                {[
-                  { title: 'ATS Match', score: '95%', color: 'var(--brand-green)', detail: 'High technical tool keyword density matching 95% of target scanners.' },
-                  { title: 'Impact', score: '72%', color: '#d97706', detail: 'Work history describes responsibilities well but lacks quantified throughput numbers.' },
-                  { title: 'Keywords', score: '88%', color: 'var(--brand-green)', detail: 'Core stack keywords recognized by major ATS filters.' },
-                  { title: 'Formatting', score: '94%', color: 'var(--brand-green)', detail: 'Clean typography and standard section headings.' },
-                  { title: 'Projects Fit', score: '76%', color: '#d97706', detail: 'Highlight projects showcase good stack diversity but need live deployment links.' }
-                ].map((item, i) => (
-                  <div 
-                    key={i}
-                    onClick={() => setSubscoreModal(item)}
-                    style={{ padding: '0.85rem 0.5rem', background: 'rgba(0,0,0,0.015)', borderRadius: '10px', cursor: 'pointer', border: '1px solid rgba(0,0,0,0.03)' }}
-                  >
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 700, textTransform: 'uppercase' }}>{item.title}</span>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: item.color, margin: '0.2rem 0' }}>{item.score}</div>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--brand-violet)', fontWeight: 600 }}>Inspect →</span>
+              {/* CARD 1: HERO ATS COMPATIBILITY (Spans 8 Columns) */}
+              <div className="clay-card clay-mint" style={{ gridColumn: 'span 8', padding: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-green)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ASPECT 01 • SCANNER READINESS</span>
+                    <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', margin: '0.2rem 0 0 0', fontFamily: 'var(--font-title)' }}>
+                      ATS Compatibility & Vector Match (95%)
+                    </h3>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--brand-green)', background: '#ffffff', padding: '0.4rem 1rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.15)' }}>
+                    95/100
+                  </span>
+                </div>
 
-            <div className="shad-card" style={{ background: '#fff', padding: '2rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>
-                  Grammarly-Style Resume Heatmap ({activeResumeVersion.toUpperCase()})
-                </h3>
-              </div>
-
-              <div className="heatmap-strong">
-                <strong style={{ color: '#16a34a', fontSize: '0.82rem', textTransform: 'uppercase' }}>🟢 Strong Section (ATS Matched)</strong>
-                <p style={{ fontSize: '0.9rem', margin: '0.4rem 0 0 0' }}>
-                  <strong>Target Title & Core Skills:</strong> "{user?.jobTitle || 'Software Engineer'}" profile matched across target ATS scanners.
+                <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                  Your resume structure ranks in the <strong>top 5% of scanner compatibility</strong> across Greenhouse, Lever, Workday, and Ashby. All standard section headers and text encodings are cleanly parsed.
                 </p>
+
+                {/* Progress Bar */}
+                <div style={{ background: 'rgba(22, 163, 74, 0.12)', height: '10px', borderRadius: '10px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+                  <div style={{ width: '95%', height: '100%', background: 'linear-gradient(90deg, #16a34a, #22c55e)', borderRadius: '10px' }} />
+                </div>
+
+                {/* Check grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CheckCircle size={15} style={{ color: 'var(--brand-green)' }} /> Standard Section Headings Verified
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CheckCircle size={15} style={{ color: 'var(--brand-green)' }} /> Single-Column Plain Text Layout
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CheckCircle size={15} style={{ color: 'var(--brand-green)' }} /> Zero Parsing Tables or Floating Boxes
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CheckCircle size={15} style={{ color: 'var(--brand-green)' }} /> UTF-8 Readable Font Encoding
+                  </div>
+                </div>
               </div>
 
-              <div className="heatmap-improve">
-                <strong style={{ color: '#d97706', fontSize: '0.82rem', textTransform: 'uppercase' }}>🟡 Needs Improvement (Quantify Metrics)</strong>
-                <p style={{ fontSize: '0.9rem', margin: '0.4rem 0 0 0' }}>
-                  <strong>Work Experience:</strong> "{user?.experience || 'Engineered web features'}" — Describe metrics (e.g., Reduced latency from 120ms to 45ms using Redis).
-                </p>
+              {/* CARD 2: OVERALL RESUME SCORE (Spans 4 Columns - Clay Dark) */}
+              <div className="clay-card clay-dark" style={{ gridColumn: 'span 4', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.5px' }}>OVERALL HEALTH</span>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', margin: '0.2rem 0 1rem 0', fontFamily: 'var(--font-title)' }}>
+                    Resume Performance
+                  </h3>
+
+                  <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+                    <div style={{ fontSize: '3.6rem', fontWeight: 900, color: '#ffffff', lineHeight: 1, letterSpacing: '-1px' }}>84</div>
+                    <span style={{ fontSize: '0.8rem', color: '#16a34a', fontWeight: 700, background: 'rgba(22, 163, 74, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '50px', border: '1px solid rgba(22, 163, 74, 0.3)', display: 'inline-block', marginTop: '0.5rem' }}>
+                      🟢 Target Market Ready
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.82rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#a1a1aa' }}>Target Version:</span>
+                    <strong style={{ color: '#ffffff', textTransform: 'uppercase' }}>{activeResumeVersion}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#a1a1aa' }}>Last AI Scan:</span>
+                    <strong style={{ color: '#ffffff' }}>July 26, 2026</strong>
+                  </div>
+                </div>
               </div>
 
-              <div className="heatmap-weak">
-                <strong style={{ color: '#ef4444', fontSize: '0.82rem', textTransform: 'uppercase' }}>🔴 Missing Core Keywords</strong>
-                <p style={{ fontSize: '0.9rem', margin: '0.4rem 0 0 0' }}>
-                  <strong>Container & Cloud Gap:</strong> "Docker" and "AWS" are omitted from your parsed skills list.
+              {/* CARD 3: QUANTIFIED IMPACT & METRICS (Spans 4 Columns - Clay Amber) */}
+              <div className="clay-card clay-amber" style={{ gridColumn: 'span 4', padding: '1.75rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ASPECT 02 • WORK IMPACT</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.4rem 0 0.75rem 0' }}>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Quantified Metrics</h4>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#d97706' }}>72%</span>
+                </div>
+
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.55', margin: '0 0 1rem 0' }}>
+                  3 of 5 bullet points contain quantified metrics (% throughput, ms latency, or $ revenue).
                 </p>
+
+                <div style={{ background: '#ffffff', padding: '0.85rem', borderRadius: '14px', border: '1px solid rgba(217, 119, 6, 0.2)', fontSize: '0.8rem', color: '#92400e' }}>
+                  <strong>💡 AI Recommendation:</strong>
+                  <div style={{ marginTop: '0.25rem' }}>Replace generic descriptions with numbers (e.g. <em>"Reduced API latency by 45% via Redis"</em>).</div>
+                </div>
               </div>
+
+              {/* CARD 4: TECHNICAL KEYWORDS COVERAGE (Spans 4 Columns - Clay Indigo) */}
+              <div className="clay-card clay-indigo" style={{ gridColumn: 'span 4', padding: '1.75rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-violet)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ASPECT 03 • KEYWORD DENSITY</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.4rem 0 0.75rem 0' }}>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Skills & Tools Coverage</h4>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--brand-violet)' }}>88%</span>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '1rem' }}>
+                  {['React', 'Next.js', 'TypeScript', 'Node.js', 'PostgreSQL', 'REST APIs'].map((tool, tIdx) => (
+                    <span key={tIdx} style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.5rem', borderRadius: '6px', background: '#ffffff', color: 'var(--brand-violet)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                      ✓ {tool}
+                    </span>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: '0.78rem', color: '#ef4444', fontWeight: 700 }}>
+                  ⚠️ Missing Keywords: <span style={{ color: '#475569' }}>Docker, AWS, GraphQL</span>
+                </div>
+              </div>
+
+              {/* CARD 5: 6-SECOND RECRUITER IMPRESSION (Spans 4 Columns - Clay Sky) */}
+              <div className="clay-card clay-sky" style={{ gridColumn: 'span 4', padding: '1.75rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ASPECT 04 • RECRUITER SCAN</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.4rem 0 0.75rem 0' }}>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>6-Sec Skimmability</h4>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0284c7' }}>91%</span>
+                </div>
+
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.55', margin: '0 0 1rem 0' }}>
+                  Optimal <strong>F-Pattern Visual Flow</strong>. Recruiter eye movement lands cleanly on title and top tech skills within 6 seconds.
+                </p>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 700, color: '#0369a1', background: '#ffffff', padding: '0.6rem 0.85rem', borderRadius: '12px' }}>
+                  <span>Avg Bullet Length:</span>
+                  <span>14 words (Optimal)</span>
+                </div>
+              </div>
+
+              {/* CARD 6: ENGINEERING PROJECTS PROOF OF WORK (Spans 6 Columns) */}
+              <div className="clay-card" style={{ gridColumn: 'span 6', padding: '1.75rem', background: '#ffffff' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-violet)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ASPECT 05 • PROOF OF WORK</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.4rem 0 0.75rem 0' }}>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Projects & Live Deployments</h4>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#d97706' }}>76%</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+                    <CheckCircle size={15} style={{ color: 'var(--brand-green)' }} /> GitHub Repository Links Detected
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+                    <CheckCircle size={15} style={{ color: 'var(--brand-green)' }} /> Live Vercel Production Demo Included
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#d97706', fontWeight: 600 }}>
+                    ⚠️ Star / Scale Metrics Missing for Top Project
+                  </div>
+                </div>
+              </div>
+
+              {/* CARD 7: TONE, ACTION VERBS & GRAMMAR (Spans 6 Columns) */}
+              <div className="clay-card" style={{ gridColumn: 'span 6', padding: '1.75rem', background: '#ffffff' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--brand-green)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ASPECT 06 • ACTION VERBS</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.4rem 0 0.75rem 0' }}>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Power Action Verbs & Grammar</h4>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--brand-green)' }}>94%</span>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem' }}>
+                  {['Architected', 'Orchestrated', 'Engineered', 'Optimized', 'Deployed'].map((verb, vIdx) => (
+                    <span key={vIdx} style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.25rem 0.6rem', borderRadius: '8px', background: 'rgba(22, 163, 74, 0.1)', color: 'var(--brand-green)', border: '1px solid rgba(22, 163, 74, 0.2)' }}>
+                      ⚡ {verb}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.75rem' }}>
+                  Zero weak passive verbs detected (e.g. <em>"worked on"</em> or <em>"helped with"</em>).
+                </div>
+              </div>
+
             </div>
           </div>
         )}
