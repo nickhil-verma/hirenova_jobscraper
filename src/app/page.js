@@ -573,7 +573,8 @@ export default function JobBoard() {
           Hirenova
         </Link>
 
-        <div style={{ display: 'flex', gap: scrolled ? '0.9rem' : '1.35rem', alignItems: 'center', fontSize: scrolled ? '0.8rem' : '0.86rem', fontWeight: 600, color: 'var(--text-secondary)', transition: 'all 0.2s ease', flexShrink: 0, whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', gap: scrolled ? '0.75rem' : '1.2rem', alignItems: 'center', fontSize: scrolled ? '0.78rem' : '0.84rem', fontWeight: 600, color: 'var(--text-secondary)', transition: 'all 0.2s ease', flexShrink: 0, whiteSpace: 'nowrap' }}>
+          <a href="#extension-guide" style={{ textDecoration: 'none', color: 'inherit' }}>Extension</a>
           <a href="#how-it-works" style={{ textDecoration: 'none', color: 'inherit' }}>How it Works</a>
           <a href="#market-trends" style={{ textDecoration: 'none', color: 'inherit' }}>Market Trends</a>
           <a href="#resume-upload" style={{ textDecoration: 'none', color: 'inherit' }}>Upload Resume</a>
@@ -1261,6 +1262,127 @@ export default function JobBoard() {
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-green)', margin: '0.2rem 0' }}>↑ +18%</div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>Avg Compensation: $155k / yr</span>
             </div>
+          </div>
+        </section>
+
+        {/* DEDICATED CHROME EXTENSION INSTALLATION HUB & GUIDE SECTION */}
+        <section id="extension-guide" className="shad-card hover-lift" style={{ padding: '4rem 3rem', background: '#09090b', color: '#ffffff', borderRadius: '32px', marginBottom: '5rem', border: '1px solid rgba(255, 255, 255, 0.12)', boxShadow: '0 25px 60px rgba(0, 0, 0, 0.35)', position: 'relative', overflow: 'hidden' }}>
+          {/* Subtle Ambient Backlight Glow Blobs */}
+          <div style={{ position: 'absolute', top: '-120px', right: '-120px', width: '380px', height: '380px', background: 'radial-gradient(circle, rgba(22, 163, 74, 0.18) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+          <div style={{ position: 'absolute', bottom: '-100px', left: '-100px', width: '320px', height: '320px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '3.5rem', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+            
+            {/* Left Column: Heading & Quick Download Links */}
+            <div>
+              <div className="shad-badge" style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', borderColor: 'rgba(255, 255, 255, 0.2)', padding: '0.45rem 1rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1.25rem', letterSpacing: '0.04em' }}>
+                <Zap size={14} style={{ color: '#16a34a' }} /> BROWSER AGENT MANIFEST V3
+              </div>
+
+              <h2 style={{ fontSize: '2.6rem', fontWeight: 800, fontFamily: 'var(--font-title)', letterSpacing: '-1px', margin: '0 0 1.2rem 0', lineHeight: 1.2, color: '#ffffff' }}>
+                Install Hirenova Extension on <span style={{ background: 'linear-gradient(135deg, #16a34a 0%, #4ade80 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Your PC Browser</span>
+              </h2>
+
+              <p style={{ color: '#a1a1aa', fontSize: '1.05rem', lineHeight: '1.7', margin: '0 0 2rem 0' }}>
+                Supercharge your job hunt. Automatically autofill profile fields and attach your local resume across <strong>Greenhouse, Lever, Workday, LinkedIn, and Indeed</strong> in 1-click.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <a 
+                  href="https://github.com/nickhil-verma/hirenova_jobscraper/tree/main/extension" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="shad-btn hover-lift" 
+                  style={{ background: '#ffffff', color: '#09090b', fontWeight: 800, padding: '0.85rem 1.6rem', borderRadius: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', fontSize: '0.95rem', boxShadow: '0 8px 24px rgba(255,255,255,0.15)' }}
+                >
+                  <Globe size={18} /> Open Extension Repository on GitHub ↗
+                </a>
+
+                <button 
+                  onClick={() => setIsExtensionGuideOpen(true)}
+                  className="shad-btn"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.18)', fontWeight: 700, padding: '0.8rem 1.6rem', borderRadius: '14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.9rem' }}
+                >
+                  <Sparkles size={16} style={{ color: '#16a34a' }} /> View Interactive Keyboard Shortcuts
+                </button>
+              </div>
+
+              {/* Supported Platforms Tag Row */}
+              <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Compatible Browsers:</span>
+                {['Google Chrome', 'Brave Browser', 'Microsoft Edge', 'Chromium'].map((bName, bIdx) => (
+                  <span key={bIdx} style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.55rem', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    {bName}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: 4-Step Interactive Pipeline Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              
+              {/* Step 1 */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '18px', padding: '1.35rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #16a34a, #22c55e)', color: '#ffffff', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)' }}>
+                  01
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-title)' }}>
+                    Download or Clone <code>/extension</code> Folder
+                  </h3>
+                  <p style={{ fontSize: '0.86rem', color: '#a1a1aa', margin: 0, lineHeight: 1.5 }}>
+                    Download the project ZIP from GitHub or run <code>git clone</code>. Locate the <code>/extension</code> subfolder on your PC.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '18px', padding: '1.35rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #09090b, #27272a)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  02
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-title)' }}>
+                    Open <code>chrome://extensions</code> & Enable Developer Mode
+                  </h3>
+                  <p style={{ fontSize: '0.86rem', color: '#a1a1aa', margin: 0, lineHeight: 1.5 }}>
+                    In your browser address bar, type <code>chrome://extensions</code> and turn on the <strong>Developer mode</strong> toggle switch in the top right.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '18px', padding: '1.35rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #09090b, #27272a)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  03
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-title)' }}>
+                    Click "Load unpacked" & Select Folder
+                  </h3>
+                  <p style={{ fontSize: '0.86rem', color: '#a1a1aa', margin: 0, lineHeight: 1.5 }}>
+                    Click <strong>Load unpacked</strong> (top left header) and select the <code>/extension</code> folder containing <code>manifest.json</code>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(22, 163, 74, 0.3)', borderRadius: '18px', padding: '1.35rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #16a34a, #15803d)', color: '#ffffff', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(22, 163, 74, 0.4)' }}>
+                  04
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-title)' }}>
+                    Pin Extension & Press <code>Alt + Shift + A</code>
+                  </h3>
+                  <p style={{ fontSize: '0.86rem', color: '#a1a1aa', margin: 0, lineHeight: 1.5 }}>
+                    Pin 📌 Hirenova Agent to your toolbar. Visit any application form and press <strong><code>Alt + Shift + A</code></strong> for 1-click autofill & resume attaching!
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </section>
 
