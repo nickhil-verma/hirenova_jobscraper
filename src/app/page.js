@@ -6,16 +6,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { 
-  Briefcase, 
-  LogOut, 
-  Cpu, 
-  Database, 
-  Search, 
-  Lock, 
-  MapPin, 
-  Globe, 
-  Coins, 
+import {
+  Briefcase,
+  LogOut,
+  Cpu,
+  Database,
+  Search,
+  Lock,
+  MapPin,
+  Globe,
+  Coins,
   Settings,
   Sparkles,
   Award,
@@ -30,13 +30,13 @@ import {
   Building2,
   Users,
   Star,
-  SearchX, 
-  Play, 
-  Share2, 
-  ExternalLink, 
-  Mail, 
-  ArrowUp, 
-  Terminal, 
+  SearchX,
+  Play,
+  Share2,
+  ExternalLink,
+  Mail,
+  ArrowUp,
+  Terminal,
   FileText,
   Heart,
   BookmarkPlus,
@@ -315,7 +315,7 @@ export default function JobBoard() {
       if (!isPoll) setLoading(true);
       const res = await fetch(`/api/jobs?page=${pageNum}&limit=12&search=${encodeURIComponent(searchTerm)}`);
       if (!res.ok) throw new Error('Failed to retrieve jobs');
-      
+
       const data = await res.json();
       if (data.success) {
         setJobs(data.jobs || []);
@@ -405,9 +405,9 @@ export default function JobBoard() {
   const highlightText = (text = '', query = '') => {
     if (!query.trim() || !text) return text;
     const parts = text.split(new RegExp(`(${query.replace(/[^a-zA-Z0-9]/g, '')})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === query.toLowerCase() 
-        ? <mark key={i} className="search-highlight">{part}</mark> 
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase()
+        ? <mark key={i} className="search-highlight">{part}</mark>
         : part
     );
   };
@@ -553,12 +553,12 @@ export default function JobBoard() {
 
   return (
     <div style={{ background: 'radial-gradient(circle at top center, #eef2ff, #f8fafc 70%)', minHeight: '100vh', marginTop: '-6rem', paddingBottom: '4rem' }}>
-      
+
       {/* 1. FLOATING GLASS NAVBAR WITH FRAMER MOTION SCROLL ANIMATION */}
-      <motion.header 
+      <motion.header
         className="floating-navbar"
         initial={{ width: '90%', maxWidth: '1200px' }}
-        animate={{ 
+        animate={{
           width: scrolled ? '84%' : '90%',
           maxWidth: scrolled ? '1060px' : '1200px',
           padding: scrolled ? '0.5rem 1.4rem' : '0.75rem 2rem',
@@ -580,7 +580,7 @@ export default function JobBoard() {
           <a href="#resume-upload" style={{ textDecoration: 'none', color: 'inherit' }}>Upload Resume</a>
           <a href="#collections" style={{ textDecoration: 'none', color: 'inherit' }}>Job Collections</a>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
           {!checkingSession && (
             user ? (
@@ -617,7 +617,7 @@ export default function JobBoard() {
               Next-Gen AI Career Platform
             </div>
             <h1 style={{ fontSize: '3.8rem', fontWeight: 800, letterSpacing: '-1.5px', marginBottom: '1.25rem', lineHeight: '1.15', fontFamily: 'var(--font-title)' }}>
-              Your Dream Job Exists.<br/>We Have Seen The Internet.
+              Your Dream Job Exists.<br />We Have Seen The Internet.
             </h1>
             <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '680px', margin: '0 auto 2.5rem auto', lineHeight: '1.6' }}>
               Search millions of indexed opportunities via natural language, test your resume against <strong>6-Second Recruiter Simulators</strong>, and automate applications with our <strong>Journey Kanban</strong>.
@@ -628,7 +628,7 @@ export default function JobBoard() {
               <div className="search-bar-icon-wrap">
                 <Search size={20} />
               </div>
-              <input 
+              <input
                 ref={searchInputRef}
                 type="text"
                 className="search-bar-input"
@@ -637,9 +637,9 @@ export default function JobBoard() {
                 onChange={handleSearchChange}
               />
               {search && (
-                <button 
-                  type="button" 
-                  onClick={handleClearSearch} 
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
                   className="search-bar-clear-btn"
                   title="Clear search"
                 >
@@ -647,7 +647,7 @@ export default function JobBoard() {
                 </button>
               )}
               <kbd className="search-bar-kbd">/</kbd>
-              <button 
+              <button
                 type="submit"
                 className="shad-btn shad-btn-primary search-bar-submit-btn"
               >
@@ -664,7 +664,7 @@ export default function JobBoard() {
                 "Startups hiring freshers",
                 "Companies similar to Stripe"
               ].map((promptStr, pIdx) => (
-                <button 
+                <button
                   key={pIdx}
                   onClick={() => { setSearch(promptStr); fetchData(1, promptStr, false); }}
                   className="shad-badge shad-badge-outline hover-lift"
@@ -733,7 +733,7 @@ export default function JobBoard() {
             </div>
 
             {/* Interactive Drag & Drop Box Card */}
-            <form 
+            <form
               onSubmit={handleLandingResumeUpload}
               onDragOver={(e) => { e.preventDefault(); setIsDraggingOver(true); }}
               onDragLeave={() => setIsDraggingOver(false)}
@@ -743,15 +743,15 @@ export default function JobBoard() {
                 const file = e.dataTransfer.files?.[0];
                 if (file) setResumeFile(file);
               }}
-              style={{ 
-                background: isDraggingOver ? 'rgba(244, 244, 245, 0.95)' : '#ffffff', 
-                border: isDraggingOver ? '2px dashed #09090b' : '2px dashed rgba(9, 9, 11, 0.18)', 
-                borderRadius: '24px', 
-                padding: '2.25rem 2rem', 
-                textAlign: 'center', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
+              style={{
+                background: isDraggingOver ? 'rgba(244, 244, 245, 0.95)' : '#ffffff',
+                border: isDraggingOver ? '2px dashed #09090b' : '2px dashed rgba(9, 9, 11, 0.18)',
+                borderRadius: '24px',
+                padding: '2.25rem 2rem',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 gap: '1rem',
                 boxShadow: isDraggingOver ? '0 12px 30px rgba(9, 9, 11, 0.12)' : '0 8px 24px rgba(0, 0, 0, 0.04)',
                 transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -763,10 +763,10 @@ export default function JobBoard() {
                 if (inputEl) inputEl.click();
               }}
             >
-              <input 
+              <input
                 id="landing-resume-file-input"
-                type="file" 
-                accept=".pdf,.txt,.doc,.docx" 
+                type="file"
+                accept=".pdf,.txt,.doc,.docx"
                 onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
                 style={{ display: 'none' }}
               />
@@ -809,9 +809,9 @@ export default function JobBoard() {
                       </div>
                     </div>
                   </div>
-                  <button 
-                    type="button" 
-                    onClick={(e) => { e.stopPropagation(); setResumeFile(null); setUploadMessage(''); }} 
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setResumeFile(null); setUploadMessage(''); }}
                     style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '0.2rem' }}
                     title="Remove file"
                   >
@@ -820,11 +820,11 @@ export default function JobBoard() {
                 </div>
               )}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={!resumeFile || uploadingResume}
                 onClick={(e) => e.stopPropagation()}
-                className="shad-btn shad-btn-primary" 
+                className="shad-btn shad-btn-primary"
                 style={{ width: '100%', borderRadius: '12px', height: '2.85rem', fontSize: '0.92rem', fontWeight: 700, background: 'linear-gradient(135deg, #09090b 0%, #27272a 100%)', boxShadow: '0 6px 18px rgba(9, 9, 11, 0.18)', transition: 'all 0.2s ease' }}
               >
                 {uploadingResume ? (
@@ -881,7 +881,7 @@ export default function JobBoard() {
             ].map(col => {
               const IconComp = col.icon;
               return (
-                <div 
+                <div
                   key={col.id}
                   onClick={() => {
                     setSelectedCollection(col.id);
@@ -892,10 +892,10 @@ export default function JobBoard() {
                     }
                   }}
                   className="shad-card hover-lift"
-                  style={{ 
-                    padding: '1.5rem', 
-                    background: selectedCollection === col.id ? (col.id === 'liked' ? '#ef4444' : '#09090b') : '#fff', 
-                    color: selectedCollection === col.id ? '#fff' : 'var(--text-primary)', 
+                  style={{
+                    padding: '1.5rem',
+                    background: selectedCollection === col.id ? (col.id === 'liked' ? '#ef4444' : '#09090b') : '#fff',
+                    color: selectedCollection === col.id ? '#fff' : 'var(--text-primary)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -975,9 +975,9 @@ export default function JobBoard() {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '440px', margin: 0 }}>
                     Click the ❤️ heart icon on any job card to save it to your personal Liked Jobs collection.
                   </p>
-                  <button 
+                  <button
                     onClick={() => { setSearch(''); setSelectedCollection('all'); setSelectedCategory('all'); fetchData(1, '', false); }}
-                    className="shad-btn shad-btn-primary" 
+                    className="shad-btn shad-btn-primary"
                     style={{ borderRadius: '20px' }}
                   >
                     Explore All Open Jobs
@@ -990,9 +990,9 @@ export default function JobBoard() {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '440px', margin: 0 }}>
                     Try searching for broader technical terms like "React", "Python", "Full Stack", or clear your filter parameters.
                   </p>
-                  <button 
+                  <button
                     onClick={() => { setSearch(''); setSelectedCollection('all'); setSelectedCategory('all'); fetchData(1, '', false); }}
-                    className="shad-btn shad-btn-outline" 
+                    className="shad-btn shad-btn-outline"
                     style={{ borderRadius: '20px' }}
                   >
                     Clear Search Filter
@@ -1015,10 +1015,10 @@ export default function JobBoard() {
                   const isKanbanSaved = savedKanbanJobIds.includes(jobId);
 
                   return (
-                    <div 
-                      key={jobId} 
-                      onClick={() => openJobDrawer({ ...job, company: companyName, title: jobTitle, requirementsSummary: details.requirements_summary || job.job_information?.description, applyUrl: job.apply_url })} 
-                      className="shad-card hover-lift" 
+                    <div
+                      key={jobId}
+                      onClick={() => openJobDrawer({ ...job, company: companyName, title: jobTitle, requirementsSummary: details.requirements_summary || job.job_information?.description, applyUrl: job.apply_url })}
+                      className="shad-card hover-lift"
                       style={{ background: '#fff', cursor: 'pointer' }}
                     >
                       <div className="shad-card-header" style={{ padding: 0 }}>
@@ -1026,9 +1026,9 @@ export default function JobBoard() {
                           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                             <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: getGradientForCompany(companyName), color: '#fff', fontWeight: 700, flexShrink: 0, position: 'relative' }}>
                               {logoUrl ? (
-                                <img 
-                                  src={logoUrl} 
-                                  alt={companyName} 
+                                <img
+                                  src={logoUrl}
+                                  alt={companyName}
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 />
@@ -1043,7 +1043,7 @@ export default function JobBoard() {
                             </div>
                           </div>
 
-                          <button 
+                          <button
                             onClick={(e) => { e.stopPropagation(); toggleLikeJob(jobId, job); }}
                             style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem', display: 'flex', alignItems: 'center' }}
                             title={isLiked ? "Unlike job" : "Like job"}
@@ -1081,7 +1081,7 @@ export default function JobBoard() {
                       </div>
 
                       <div className="shad-card-footer" style={{ padding: '0.75rem 0 0 0', marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
-                        <button 
+                        <button
                           onClick={(e) => { e.stopPropagation(); saveJobToKanban(job); }}
                           className="shad-btn shad-btn-outline"
                           style={{ flex: 1, gap: '0.3rem', fontSize: '0.78rem', justifyContent: 'center', color: isKanbanSaved ? 'var(--brand-green)' : undefined, borderColor: isKanbanSaved ? 'rgba(22,163,74,0.3)' : undefined }}
@@ -1101,7 +1101,7 @@ export default function JobBoard() {
               {/* Interactive Pagination Controls */}
               {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
-                  <button 
+                  <button
                     disabled={page === 1}
                     onClick={() => {
                       const newPage = page - 1;
@@ -1139,7 +1139,7 @@ export default function JobBoard() {
                     );
                   })}
 
-                  <button 
+                  <button
                     disabled={page === totalPages}
                     onClick={() => {
                       const newPage = page + 1;
@@ -1185,7 +1185,7 @@ export default function JobBoard() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.4rem', marginBottom: '1.25rem' }}>
               Watch how our AI Command Center parses resumes, calculates ATS vectors, and automates applications.
             </p>
-            <button 
+            <button
               onClick={() => setIsExtensionGuideOpen(true)}
               className="shad-btn shad-btn-primary hover-lift"
               style={{ borderRadius: '25px', padding: '0.6rem 1.4rem', fontSize: '0.9rem', fontWeight: 700, gap: '0.4rem' }}
@@ -1195,9 +1195,9 @@ export default function JobBoard() {
           </div>
 
           {/* macOS-Style Window Container with GSAP ScrollTrigger Right to Left Entrance */}
-          <div 
-            ref={macOsWindowRef} 
-            className="macos-window" 
+          <div
+            ref={macOsWindowRef}
+            className="macos-window"
             style={{ maxWidth: '960px', margin: '0 auto', willChange: 'transform, opacity' }}
           >
             {/* Window Title Bar */}
@@ -1272,7 +1272,7 @@ export default function JobBoard() {
           <div style={{ position: 'absolute', bottom: '-100px', left: '-100px', width: '320px', height: '320px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '3.5rem', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-            
+
             {/* Left Column: Heading & Quick Download Links */}
             <div>
               <div className="shad-badge" style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', borderColor: 'rgba(255, 255, 255, 0.2)', padding: '0.45rem 1rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1.25rem', letterSpacing: '0.04em' }}>
@@ -1288,17 +1288,17 @@ export default function JobBoard() {
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                <a 
-                  href="https://github.com/nickhil-verma/hirenova_jobscraper/tree/main/extension" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="shad-btn hover-lift" 
+                <a
+                  href="https://github.com/nickhil-verma/hirenova_jobscraper/tree/main/extension"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shad-btn hover-lift"
                   style={{ background: '#ffffff', color: '#09090b', fontWeight: 800, padding: '0.85rem 1.6rem', borderRadius: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', fontSize: '0.95rem', boxShadow: '0 8px 24px rgba(255,255,255,0.15)' }}
                 >
                   <Globe size={18} /> Open Extension Repository on GitHub ↗
                 </a>
 
-                <button 
+                <button
                   onClick={() => setIsExtensionGuideOpen(true)}
                   className="shad-btn"
                   style={{ background: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.18)', fontWeight: 700, padding: '0.8rem 1.6rem', borderRadius: '14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.9rem' }}
@@ -1320,7 +1320,7 @@ export default function JobBoard() {
 
             {/* Right Column: 4-Step Interactive Pipeline Cards */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              
+
               {/* Step 1 */}
               <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '18px', padding: '1.35rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #16a34a, #22c55e)', color: '#ffffff', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)' }}>
@@ -1386,22 +1386,47 @@ export default function JobBoard() {
           </div>
         </section>
 
-        {/* 10. SUCCESS STORIES & FINAL CTA */}
-        <section style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <div className="shad-card" style={{ background: '#09090b', color: '#fff', padding: '4rem 2rem', borderRadius: '24px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: 'var(--font-title)', marginBottom: '1rem' }}>
-              Ready to Land Your Dream Job?
-            </h2>
-            <p style={{ color: '#a1a1aa', fontSize: '1.1rem', maxWidth: '620px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
-              Join thousands of developers using Hirenova's AI Command Center to optimize resumes, run recruiter simulations, and automate applications.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <Link href="/signup" className="shad-btn shad-btn-primary hover-lift" style={{ background: '#fff', color: '#09090b', borderRadius: '30px', padding: '0 2rem', height: '2.8rem', fontWeight: 700 }}>
-                Get Started Free
-              </Link>
-              <Link href="/dashboard" className="shad-btn shad-btn-outline hover-lift" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.2)', borderRadius: '30px', padding: '0 2rem', height: '2.8rem' }}>
-                Open AI Command Center
-              </Link>
+        {/* 10. SUCCESS STORIES & FINAL CTA - LIGHT VIBRANT GLASS BANNER */}
+        <section style={{ textAlign: 'center', marginBottom: '5rem' }}>
+          <div className="shad-card hover-lift" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 40%, #eef2ff 100%)', color: '#0f172a', padding: '4.5rem 2.5rem', borderRadius: '32px', border: '1px solid rgba(22, 163, 74, 0.25)', boxShadow: '0 25px 60px rgba(15, 23, 42, 0.08)', position: 'relative', overflow: 'hidden' }}>
+            {/* Ambient Lighting Orbs */}
+            <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '280px', height: '280px', background: 'radial-gradient(circle, rgba(22, 163, 74, 0.12) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+            <div style={{ position: 'absolute', bottom: '-80px', left: '-80px', width: '280px', height: '280px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div className="shad-badge" style={{ background: 'rgba(22, 163, 74, 0.1)', color: 'var(--brand-green)', borderColor: 'rgba(22, 163, 74, 0.25)', padding: '0.45rem 1rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1.25rem' }}>
+                <Sparkles size={14} /> JOIN 12,000+ SOFTWARE ENGINEERS
+              </div>
+
+              <h2 style={{ fontSize: '2.8rem', fontWeight: 800, fontFamily: 'var(--font-title)', letterSpacing: '-1px', marginBottom: '1.1rem', color: '#0f172a', lineHeight: 1.2 }}>
+                Ready to Land Your <span style={{ background: 'linear-gradient(135deg, #09090b 0%, #3f3f46 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Dream Technical Job?</span>
+              </h2>
+
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '640px', margin: '0 auto 2.25rem auto', lineHeight: '1.65' }}>
+                Join thousands of developers using Hirenova's AI Command Center to optimize resumes, calculate 7-factor ATS match scores, and automate applications.
+              </p>
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link href="/signup" className="shad-btn shad-btn-primary hover-lift" style={{ background: '#09090b', color: '#ffffff', borderRadius: '30px', padding: '0 2.25rem', height: '3.1rem', fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 24px rgba(9, 9, 11, 0.2)' }}>
+                  Get Started Free <ArrowRight size={16} style={{ marginLeft: '0.3rem' }} />
+                </Link>
+                <Link href="/dashboard" className="shad-btn shad-btn-outline hover-lift" style={{ color: '#0f172a', borderColor: '#cbd5e1', background: '#ffffff', borderRadius: '30px', padding: '0 2rem', height: '3.1rem', fontWeight: 700, fontSize: '0.95rem' }}>
+                  Open AI Command Center
+                </Link>
+              </div>
+
+              {/* Trust Metric Badges */}
+              <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', marginTop: '2.5rem', flexWrap: 'wrap', opacity: 0.85 }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <CheckCircle2 size={16} style={{ color: 'var(--brand-green)' }} /> 100% Free Starter Plan
+                </span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <ShieldCheck size={16} style={{ color: 'var(--brand-green)' }} /> Encrypted Local Data
+                </span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Zap size={16} style={{ color: 'var(--brand-green)' }} /> Instant Setup in 30 Seconds
+                </span>
+              </div>
             </div>
           </div>
         </section>
@@ -1412,9 +1437,9 @@ export default function JobBoard() {
       <footer style={{ background: '#09090b', color: '#ffffff', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '2.5rem', paddingBottom: '1.25rem', marginTop: '2.5rem', marginBottom: 0, position: 'relative', overflow: 'hidden' }}>
         {/* Subtle ambient lighting blob */}
         <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '600px', height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)' }} />
-        
+
         <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1.3fr', gap: '3rem', marginBottom: '2.5rem', paddingTop: 0, paddingBottom: 0 }}>
-          
+
           {/* Column 1: Brand & Mission */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.9rem' }}>
@@ -1426,7 +1451,7 @@ export default function JobBoard() {
                 AI Native
               </span>
             </div>
-            
+
             <p style={{ fontSize: '0.88rem', color: '#a1a1aa', lineHeight: '1.65', margin: '0 0 1.5rem 0', maxWidth: '340px' }}>
               The AI-native career command platform empowering developers to analyze resumes, simulate recruiter scans, and land technical roles faster.
             </p>
@@ -1490,11 +1515,11 @@ export default function JobBoard() {
             ) : (
               <form onSubmit={(e) => { e.preventDefault(); setNewsletterSubscribed(true); }} style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
-                  <input 
-                    type="email" 
-                    required 
-                    placeholder="dev@company.com" 
-                    className="shad-input" 
+                  <input
+                    type="email"
+                    required
+                    placeholder="dev@company.com"
+                    className="shad-input"
                     style={{ fontSize: '0.85rem', height: '2.4rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#ffffff', borderRadius: '10px' }}
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
@@ -1549,11 +1574,11 @@ export default function JobBoard() {
               Autofill job applications and auto-attach your PC resume across Greenhouse, Lever, Workday, LinkedIn & Indeed in 1-click.
             </p>
 
-            <a 
-              href="https://github.com/nickhil-verma/hirenova_jobscraper/tree/main/extension" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="shad-btn shad-btn-primary hover-lift" 
+            <a
+              href="https://github.com/nickhil-verma/hirenova_jobscraper/tree/main/extension"
+              target="_blank"
+              rel="noreferrer"
+              className="shad-btn shad-btn-primary hover-lift"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: '12px', padding: '0.75rem 1.25rem', textDecoration: 'none', marginBottom: '1.75rem', fontWeight: 700 }}
             >
               <Globe size={16} /> Open Extension Repository Folder on GitHub ↗
