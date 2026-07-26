@@ -114,7 +114,7 @@ function parseResumeLocally(text, segregated) {
 
 // Gemini API Call with Exponential Backoff Retry for HTTP 429 Rate Limits
 async function callGeminiWithRetry(prompt, apiKey, maxRetries = 3) {
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {

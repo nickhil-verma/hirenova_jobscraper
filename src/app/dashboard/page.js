@@ -772,21 +772,6 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="shad-card" style={{ padding: isCollapsed ? '0.5rem' : '1rem', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem', background: '#fff' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #27272a, #52525b)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '1.1rem', flexShrink: 0 }} title={isCollapsed ? user?.name || 'User Profile' : undefined}>
-              {user?.name?.charAt(0).toUpperCase() || 'N'}
-            </div>
-            {!isCollapsed && (
-              <div style={{ overflow: 'hidden', textAlign: 'left', flexGrow: 1 }}>
-                <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', margin: 0 }}>{user?.name}</h4>
-                <div style={{ display: 'flex', gap: '0.25rem', marginTop: '0.15rem' }}>
-                  <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.65rem', padding: '0.05rem 0.35rem', fontWeight: 700 }}>{user?.candidateLevel || 'Mid-Level'}</span>
-                  <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.65rem', padding: '0.05rem 0.35rem', color: 'var(--brand-violet)' }}>{user?.domainOfInterest || 'Full Stack'}</span>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Navigation Links */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             <button 
@@ -861,25 +846,54 @@ export default function Dashboard() {
           </nav>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', width: '100%', alignItems: isCollapsed ? 'center' : 'stretch' }}>
-          {!isCollapsed && (
-            <button 
-              onClick={() => setIsCmdKOpen(true)} 
-              className="shad-btn shad-btn-outline" 
-              style={{ fontSize: '0.78rem', justifyContent: 'space-between', color: 'var(--text-secondary)' }}
-            >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Search size={13} /> Ask AI...</span>
-              <kbd style={{ background: 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px', fontSize: '0.7rem' }}>⌘K</kbd>
-            </button>
-          )}
-
+        {/* SIDEBAR BOTTOM: ASK AI + USER PROFILE (NIKHIL) + LOGOUT */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', width: '100%', alignItems: isCollapsed ? 'center' : 'stretch', borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '1rem', marginTop: 'auto' }}>
+          
+          {/* Ask AI Command Palette Trigger */}
           <button 
-            onClick={handleLogout}
-            className="shad-btn shad-btn-destructive"
-            style={{ width: '100%', gap: '0.4rem' }}
+            onClick={() => setIsCmdKOpen(true)} 
+            className="shad-btn shad-btn-outline" 
+            title="Ask AI Command Palette (⌘K)"
+            style={{ fontSize: '0.78rem', justifyContent: isCollapsed ? 'center' : 'space-between', color: 'var(--text-secondary)', padding: '0.55rem 0.75rem', width: '100%' }}
           >
-            <LogOut size={16} /> {!isCollapsed && <span>Sign Out</span>}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Search size={14} style={{ color: 'var(--brand-green)' }} /> {!isCollapsed && 'Ask AI...'}</span>
+            {!isCollapsed && <kbd style={{ background: 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 700 }}>⌘K</kbd>}
           </button>
+
+          {/* Integrated User Profile & Logout Bottom Card */}
+          <div className="shad-card" style={{ padding: isCollapsed ? '0.5rem' : '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', background: '#ffffff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '14px' }}>
+            <div 
+              onClick={() => setActiveSection('your_info')}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }}
+              title="Click to edit profile"
+            >
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, #09090b, #27272a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1rem', flexShrink: 0, boxShadow: '0 2px 8px rgba(9, 9, 11, 0.2)' }}>
+                {user?.name?.charAt(0).toUpperCase() || 'N'}
+              </div>
+              {!isCollapsed && (
+                <div style={{ overflow: 'hidden', textAlign: 'left', flexGrow: 1 }}>
+                  <h4 style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-primary)', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', margin: 0 }}>
+                    {user?.name || 'Nikhil Verma'}
+                  </h4>
+                  <div style={{ display: 'flex', gap: '0.25rem', marginTop: '0.15rem' }}>
+                    <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.62rem', padding: '0.05rem 0.35rem', fontWeight: 700 }}>{user?.candidateLevel || 'Mid-Level'}</span>
+                    <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.62rem', padding: '0.05rem 0.35rem', color: 'var(--brand-violet)' }}>{user?.domainOfInterest || 'Full Stack'}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="shad-btn shad-btn-destructive"
+              title="Sign Out of Hirenova"
+              style={{ width: '100%', gap: '0.4rem', height: '2.15rem', fontSize: '0.78rem', fontWeight: 700, borderRadius: '8px' }}
+            >
+              <LogOut size={14} /> {!isCollapsed && <span>Logout</span>}
+            </button>
+          </div>
+
         </div>
       </aside>
 
