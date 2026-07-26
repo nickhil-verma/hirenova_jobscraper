@@ -11,7 +11,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
         } catch (e) {}
 
-        const headers = {};
+        const headers = {
+          'x-hirenova-api-key': 'hn_sec_99182374892173_extension_client_key_v1'
+        };
         if (cookieToken) {
           headers['Authorization'] = `Bearer ${cookieToken}`;
           headers['X-Session-Token'] = cookieToken;

@@ -94,7 +94,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     jobListEl.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:0.5rem;">⚡ Fetching live job notifications...</div>';
 
     try {
-      const res = await fetch('https://hirenova-jobscraper.vercel.app/api/jobs?limit=5');
+      const res = await fetch('https://hirenova-jobscraper.vercel.app/api/jobs?limit=5', {
+        headers: { 'x-hirenova-api-key': 'hn_sec_99182374892173_extension_client_key_v1' }
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.jobs) && data.jobs.length > 0) {
@@ -249,7 +251,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Sync User Session Helper
   async function syncUserSession() {
     try {
-      const res = await fetch('https://hirenova-jobscraper.vercel.app/api/auth/session', { credentials: 'include' });
+      const res = await fetch('https://hirenova-jobscraper.vercel.app/api/auth/session', { 
+        credentials: 'include',
+        headers: { 'x-hirenova-api-key': 'hn_sec_99182374892173_extension_client_key_v1' }
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
