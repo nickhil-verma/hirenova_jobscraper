@@ -19,6 +19,7 @@ export async function POST(req) {
 
     const body = await req.json();
     const { 
+      name, email, phone, candidateLevel, domainOfInterest,
       skills, jobTitle, experience, contact, achievements, projects,
       title, phoneExtension, addressLine1, addressLine2, city,
       linkedin, xTwitter, github, portfolio, photoPath, photoDataUrl, gpa, educations,
@@ -26,40 +27,46 @@ export async function POST(req) {
     } = body;
 
     const usersColl = await getCollection('users');
+    const updateFields = {
+      skills: Array.isArray(skills) ? skills.filter(Boolean) : [],
+      jobTitle: jobTitle || '',
+      experience: experience || '',
+      title: title || '',
+      phoneExtension: phoneExtension || '',
+      addressLine1: addressLine1 || '',
+      addressLine2: addressLine2 || '',
+      city: city || '',
+      linkedin: linkedin || '',
+      xTwitter: xTwitter || '',
+      github: github || '',
+      portfolio: portfolio || '',
+      photoPath: photoPath || '',
+      photoDataUrl: photoDataUrl || '',
+      gpa: gpa || '',
+      gender: gender || '',
+      race: race || '',
+      dob: dob || '',
+      age: age || '',
+      educations: Array.isArray(educations) ? educations : [],
+      contact: {
+        email: contact?.email || email || '',
+        phone: contact?.phone || phone || '',
+        links: Array.isArray(contact?.links) ? contact.links.filter(Boolean) : []
+      },
+      achievements: Array.isArray(achievements) ? achievements.filter(Boolean) : [],
+      projects: Array.isArray(projects) ? projects.filter(p => p && p.title) : [],
+      updatedAt: new Date()
+    };
+
+    if (name) updateFields.name = name.trim();
+    if (candidateLevel) updateFields.candidateLevel = candidateLevel;
+    if (domainOfInterest) updateFields.domainOfInterest = domainOfInterest;
+    if (email || contact?.email) updateFields.email = (email || contact?.email).trim();
+    if (phone || contact?.phone) updateFields.phone = (phone || contact?.phone).trim();
+
     await usersColl.updateOne(
       { _id: new ObjectId(session.userId) },
-      {
-        $set: {
-          skills: Array.isArray(skills) ? skills.filter(Boolean) : [],
-          jobTitle: jobTitle || '',
-          experience: experience || '',
-          title: title || '',
-          phoneExtension: phoneExtension || '',
-          addressLine1: addressLine1 || '',
-          addressLine2: addressLine2 || '',
-          city: city || '',
-          linkedin: linkedin || '',
-          xTwitter: xTwitter || '',
-          github: github || '',
-          portfolio: portfolio || '',
-          photoPath: photoPath || '',
-          photoDataUrl: photoDataUrl || '',
-          gpa: gpa || '',
-          gender: gender || '',
-          race: race || '',
-          dob: dob || '',
-          age: age || '',
-          educations: Array.isArray(educations) ? educations : [],
-          contact: {
-            email: contact?.email || '',
-            phone: contact?.phone || '',
-            links: Array.isArray(contact?.links) ? contact.links.filter(Boolean) : []
-          },
-          achievements: Array.isArray(achievements) ? achievements.filter(Boolean) : [],
-          projects: Array.isArray(projects) ? projects.filter(p => p && p.title) : [],
-          updatedAt: new Date()
-        }
-      }
+      { $set: updateFields }
     );
 
     return NextResponse.json({

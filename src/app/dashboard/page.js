@@ -93,13 +93,11 @@ export default function Dashboard() {
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
   const [cmdKQuery, setCmdKQuery] = useState('');
 
-  // Daily Recommendations Checklist State
-  const [todoList, setTodoList] = useState([
-    { id: 1, text: 'Apply to Stripe (Backend Engineer)', done: false },
-    { id: 2, text: 'Add Docker & Containerization to resume', done: true },
-    { id: 3, text: 'Complete Google Online Assessment Prep', done: false },
-    { id: 4, text: 'Follow up with recruiter at Sprinto', done: false }
-  ]);
+  // Dynamic Recommendations & Score State
+  const [todoList, setTodoList] = useState([]);
+  const [hiringScore, setHiringScore] = useState(86);
+  const [percentileText, setPercentileText] = useState('Top 8% of Candidates');
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   // Kanban Application Stages State
   const [kanbanItems, setKanbanItems] = useState([
@@ -130,7 +128,7 @@ export default function Dashboard() {
 
   // AI Career Coach Chat States
   const [chatMessages, setChatMessages] = useState([
-    { sender: 'coach', text: "Good evening, Nikhil! I am your Hirenova AI Command Center Assistant. I've calculated your hiring score at 86% today. What would you like to achieve next?" }
+    { sender: 'coach', text: "Hello! I am your Hirenova AI Command Center Assistant. I've analyzed your candidate profile and active applications. How can I assist you today?" }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [sendingChat, setSendingChat] = useState(false);
@@ -234,6 +232,25 @@ export default function Dashboard() {
 
   const [likedJobIds, setLikedJobIds] = useState([]);
 
+  const fetchDynamicRecommendations = async () => {
+    setLoadingRecommendations(true);
+    try {
+      const res = await fetch('/api/ai/recommendations');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          if (typeof data.hiringScore === 'number') setHiringScore(data.hiringScore);
+          if (data.percentileText) setPercentileText(data.percentileText);
+          if (Array.isArray(data.recommendations)) setTodoList(data.recommendations);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch dynamic AI recommendations:', e);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
   const checkSession = async () => {
     try {
       const res = await fetch('/api/auth/session');
@@ -242,10 +259,15 @@ export default function Dashboard() {
         if (data.success && data.user) {
           setUser(data.user);
           populateInfoFields(data.user);
+          const firstName = data.user.name ? data.user.name.split(' ')[0] : 'Candidate';
+          setChatMessages([
+            { sender: 'coach', text: `Good day, ${firstName}! I am your Hirenova AI Command Center Assistant. How can I assist you with landing your target software engineering role today?` }
+          ]);
           if (Array.isArray(data.user.likedJobs)) {
             setLikedJobIds(data.user.likedJobs.map(String));
           }
           fetchKanbanItems();
+          fetchDynamicRecommendations();
         } else {
           router.push('/login');
         }
@@ -427,6 +449,9 @@ export default function Dashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: infoName,
+          email: infoEmail,
+          phone: infoPhone,
           title: infoTitle,
           phoneExtension: infoPhoneExtension,
           addressLine1: infoAddressLine1,
@@ -868,12 +893,12 @@ export default function Dashboard() {
               title="Click to edit profile"
             >
               <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, #09090b, #27272a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1rem', flexShrink: 0, boxShadow: '0 2px 8px rgba(9, 9, 11, 0.2)' }}>
-                {user?.name?.charAt(0).toUpperCase() || 'N'}
+                {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               {!isCollapsed && (
                 <div style={{ overflow: 'hidden', textAlign: 'left', flexGrow: 1 }}>
                   <h4 style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-primary)', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', margin: 0 }}>
-                    {user?.name || 'Nikhil Verma'}
+                    {user?.name || 'User Profile'}
                   </h4>
                   <div style={{ display: 'flex', gap: '0.25rem', marginTop: '0.15rem' }}>
                     <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.62rem', padding: '0.05rem 0.35rem', fontWeight: 700 }}>{user?.candidateLevel || 'Mid-Level'}</span>
@@ -906,7 +931,7 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
               <div>
                 <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-title)', margin: 0 }}>
-                  Good Evening, {user?.name?.split(' ')[0] || 'Nikhil'} 👋
+                  Good Day, {user?.name?.split(' ')[0] || 'Candidate'} 👋
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.2rem' }}>
                   What should you do today to get hired? Here is your daily AI action plan.
@@ -930,10 +955,10 @@ export default function Dashboard() {
               <div className="shad-card" style={{ background: '#fff', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Today's Hiring Score</span>
                 <div style={{ fontSize: '3.5rem', fontWeight: 800, fontFamily: 'var(--font-title)', color: 'var(--text-primary)', margin: '0.5rem 0' }}>
-                  86<span style={{ fontSize: '1.8rem', color: 'var(--brand-green)' }}>%</span>
+                  {hiringScore}<span style={{ fontSize: '1.8rem', color: 'var(--brand-green)' }}>%</span>
                 </div>
                 <div className="shad-badge shad-badge-outline" style={{ background: 'rgba(22, 163, 74, 0.05)', color: 'var(--brand-green)', borderColor: 'rgba(22, 163, 74, 0.2)', fontWeight: 700 }}>
-                  <TrendingUp size={12} style={{ marginRight: '0.25rem' }} /> Top 8% of Candidates
+                  <TrendingUp size={12} style={{ marginRight: '0.25rem' }} /> {percentileText}
                 </div>
               </div>
 
@@ -942,6 +967,16 @@ export default function Dashboard() {
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <Sparkles size={18} style={{ color: 'var(--brand-violet)' }} /> Today's Actionable AI Recommendations
                   </h3>
+                  <button 
+                    onClick={fetchDynamicRecommendations}
+                    disabled={loadingRecommendations}
+                    className="shad-btn shad-btn-outline" 
+                    style={{ fontSize: '0.75rem', height: '2rem', gap: '0.3rem', padding: '0 0.6rem' }}
+                    title="Refresh AI Recommendations"
+                  >
+                    <RotateCcw size={12} className={loadingRecommendations ? 'animate-spin' : ''} />
+                    <span>Refresh</span>
+                  </button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
