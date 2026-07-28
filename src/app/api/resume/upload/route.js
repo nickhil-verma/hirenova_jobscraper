@@ -107,10 +107,18 @@ function parseResumeLocally(text, segregated) {
     experience: expLines.slice(0, 4).join(' ') || 'Software development history parsed from resume.',
     jobTitle: domainOfInterest + ' Developer',
     achievements: achiveLines.slice(0, 3),
-    projects: projLines.slice(0, 3).map((line, i) => ({
-      title: `Project ${i + 1}`,
-      description: line
-    }))
+    projects: projLines.slice(0, 5).map((line, i) => {
+      const dateMatch = line.match(/\(([^)]*(?:20\d\d|19\d\d|present|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^)]*)\)/i);
+      const date = dateMatch ? dateMatch[1] : '2024';
+      const cleanDesc = line.replace(/\([^)]*(?:20\d\d|19\d\d|present|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^)]*\)/gi, '').trim();
+      const titleParts = cleanDesc.split(/[:–—]/);
+      const title = titleParts[0] && titleParts[0].length < 40 ? titleParts[0].trim() : `Project ${i + 1}`;
+      return {
+        title,
+        date,
+        description: cleanDesc || line
+      };
+    })
   };
 }
 
@@ -309,8 +317,9 @@ Return the parsed result strictly in JSON format matching this schema:
   "achievements": ["List of key achievements/awards"],
   "projects": [
     {
-      "title": "Project Name",
-      "description": "Short summary of what was built and technologies used"
+      "title": "Project Title / Name",
+      "date": "Project Date or Duration (e.g., Jan 2024 - Mar 2024 or 2024)",
+      "description": "Comprehensive project description, system architecture, and key tools used"
     }
   ]
 }

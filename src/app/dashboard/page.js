@@ -554,7 +554,7 @@ export default function Dashboard() {
   const handleAddProjectCard = () => {
     setInfoProjects([
       ...infoProjects,
-      { title: 'New Highlight Project', description: 'Brief description of system architecture and tech tools used.' }
+      { title: 'New Highlight Project', date: 'Jan 2024 - Present', description: 'Brief description of system architecture, key features, and tech stack used.' }
     ]);
   };
 
@@ -1539,35 +1539,64 @@ export default function Dashboard() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   {infoProjects.map((proj, pIdx) => (
-                    <div key={pIdx} style={{ background: 'rgba(0,0,0,0.015)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: '12px', padding: '1.25rem' }}>
+                    <div key={pIdx} style={{ background: 'rgba(0,0,0,0.015)', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '12px', padding: '1.25rem' }}>
                       {isEditingInfo ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <input 
-                            type="text" 
-                            className="shad-input" 
-                            value={proj.title} 
-                            onChange={(e) => {
-                              const updated = [...infoProjects];
-                              updated[pIdx].title = e.target.value;
-                              setInfoProjects(updated);
-                            }}
-                          />
-                          <textarea 
-                            className="shad-input" 
-                            rows={2} 
-                            value={proj.description} 
-                            onChange={(e) => {
-                              const updated = [...infoProjects];
-                              updated[pIdx].description = e.target.value;
-                              setInfoProjects(updated);
-                            }}
-                          />
-                          <button type="button" onClick={() => handleRemoveProjectCard(pIdx)} className="shad-btn shad-btn-destructive" style={{ height: '2rem', fontSize: '0.75rem', alignSelf: 'flex-start' }}>Remove Project</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.2rem' }}>Project Title</label>
+                            <input 
+                              type="text" 
+                              className="shad-input" 
+                              placeholder="Project Title"
+                              value={proj.title || ''} 
+                              onChange={(e) => {
+                                const updated = [...infoProjects];
+                                updated[pIdx].title = e.target.value;
+                                setInfoProjects(updated);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.2rem' }}>Project Date / Duration</label>
+                            <input 
+                              type="text" 
+                              className="shad-input" 
+                              placeholder="e.g. Jan 2024 - Mar 2024"
+                              value={proj.date || proj.duration || ''} 
+                              onChange={(e) => {
+                                const updated = [...infoProjects];
+                                updated[pIdx].date = e.target.value;
+                                setInfoProjects(updated);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.2rem' }}>Project Description & Technical Info</label>
+                            <textarea 
+                              className="shad-input" 
+                              rows={3} 
+                              placeholder="Key features, tech stack used, latency metrics..."
+                              value={proj.description || proj.info || ''} 
+                              onChange={(e) => {
+                                const updated = [...infoProjects];
+                                updated[pIdx].description = e.target.value;
+                                setInfoProjects(updated);
+                              }}
+                            />
+                          </div>
+                          <button type="button" onClick={() => handleRemoveProjectCard(pIdx)} className="shad-btn shad-btn-destructive" style={{ height: '2rem', fontSize: '0.75rem', alignSelf: 'flex-start', marginTop: '0.2rem' }}>Remove Project</button>
                         </div>
                       ) : (
                         <div>
-                          <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.3rem 0' }}>{proj.title}</h4>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4' }}>{proj.description}</p>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                            <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>{proj.title}</h4>
+                            {(proj.date || proj.duration) && (
+                              <span className="shad-badge shad-badge-outline" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', color: 'var(--brand-violet)', borderColor: 'rgba(142,68,173,0.3)', flexShrink: 0 }}>
+                                <Clock size={10} style={{ marginRight: '0.2rem' }} /> {proj.date || proj.duration}
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.45', whiteSpace: 'pre-line' }}>{proj.description || proj.info}</p>
                         </div>
                       )}
                     </div>

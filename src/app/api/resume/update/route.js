@@ -54,7 +54,11 @@ export async function POST(req) {
         links: Array.isArray(contact?.links) ? contact.links.filter(Boolean) : []
       },
       achievements: Array.isArray(achievements) ? achievements.filter(Boolean) : [],
-      projects: Array.isArray(projects) ? projects.filter(p => p && p.title) : [],
+      projects: Array.isArray(projects) ? projects.filter(p => p && (p.title || p.description)).map(p => ({
+        title: p.title || 'Project',
+        date: p.date || p.duration || '2024',
+        description: p.description || p.info || ''
+      })) : [],
       updatedAt: new Date()
     };
 
