@@ -39,7 +39,7 @@ export async function POST(req) {
       `${chat.sender === 'user' ? candidateFirstName : 'Coach'}: ${chat.text}`
     ).join('\n') || '';
 
-    const prompt = `You are Hirenova's expert AI Career Coach. Help ${candidateName} improve their resume, prepare for job interviews, suggest target skills to learn, or provide strategic application advice based on their profile.
+    const prompt = `You are Hirenova's expert AI Career Coach assisting ${candidateName}.
 
 Candidate Profile:
 - Candidate Name: ${candidateName}
@@ -52,9 +52,12 @@ Candidate Profile:
 Conversation History:
 ${historyContext}
 
-Candidate Message: "${message}"
+Candidate Question: "${message}"
 
-Give a highly professional, actionable, and specific response. Address ${candidateFirstName} directly by their name. Mention technical concepts relevant to their skills. Keep your answers concise, clear, and formatted in clean markdown.`;
+CRITICAL FORMATTING & LENGTH CONSTRAINTS:
+1. Provide an ULTRA-CONCISE, extremely brief reply (maximum 2-3 short bullet points or 2 sentences total).
+2. Address ${candidateFirstName} directly by name.
+3. Do NOT use markdown code blocks (\`\`\`), markdown bold asterisks (**text** or *text*), or markdown headers (###). Use plain clean text with simple bullet points (• ) only.`;
 
     if (apiKey) {
       const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
@@ -74,7 +77,14 @@ Give a highly professional, actionable, and specific response. Address ${candida
             const geminiData = await response.json();
             const replyText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (replyText) {
-              return NextResponse.json({ success: true, reply: replyText });
+              const cleanReply = replyText
+                .replace(/```[\s\S]*?```/g, m => m.replace(/```[a-z]*/gi, '').trim())
+                .replace(/`([^`]+)`/g, '$1')
+                .replace(/\*\*([^*]+)\*\*/g, '$1')
+                .replace(/\*([^*]+)\*/g, '$1')
+                .replace(/###?\s*/g, '')
+                .trim();
+              return NextResponse.json({ success: true, reply: cleanReply });
             }
           }
         } catch (mErr) {
@@ -84,10 +94,10 @@ Give a highly professional, actionable, and specific response. Address ${candida
     }
 
     // Smart Fallback Career Coach response addressing candidate by their actual name
-    let fallbackReply = `Hi ${candidateFirstName}! As your Hirenova AI Career Coach, here is my recommendation for your **${titleText}** job search:\n\n` +
-      `1. **ATS Optimization**: Ensure key tools like **${skillsText.split(', ')[0] || 'React'}** and **System Architecture** are prominently featured near the top of your resume.\n` +
-      `2. **Impact Metrics**: Quantify your experience with throughput numbers (e.g. *Reduced API latency by 35% via Redis caching*).\n` +
-      `3. **Targeted Interview Prep**: Practice core system design patterns and STAR behavioral stories tailored for ${user?.domainOfInterest || 'Full Stack'} roles.`;
+    let fallbackReply = `Hi ${candidateFirstName}! Here is my top advice for your ${titleText} job search:\n\n` +
+      `• Feature key skills like ${skillsText.split(', ')[0] || 'React'} and System Architecture near the top of your resume.\n` +
+      `• Quantify engineering achievements with measurable metrics (e.g. reduced latency, increased throughput).\n` +
+      `• Save 3 active ${user?.domainOfInterest || 'Full Stack'} engineering positions to your Kanban board today.`;
 
     return NextResponse.json({
       success: true,

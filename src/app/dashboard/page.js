@@ -633,6 +633,18 @@ export default function Dashboard() {
     setIsDrawerOpen(true);
   };
 
+  const formatChatMessageText = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/```[\s\S]*?```/g, m => m.replace(/```[a-z]*/gi, '').trim())
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/###?\s*/g, '')
+      .replace(/^[\t ]*[*•-][\t ]*/gm, '• ')
+      .trim();
+  };
+
   const handleSendChatMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || sendingChat) return;
@@ -1002,39 +1014,105 @@ export default function Dashboard() {
             <div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1.25rem' }}>Top Recommended Matches ({matchedJobs.length})</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                {matchedJobs.slice(0, 6).map((match, idx) => (
-                  <div key={idx} onClick={() => openJobDrawer(match)} className="shad-card" style={{ background: '#fff', cursor: 'pointer' }}>
-                    <div className="shad-card-header" style={{ padding: 0 }}>
-                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: getGradientForCompany(match.company), color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
-                          {getCompanyLogoUrl(match) ? (
-                            <img 
-                              src={getCompanyLogoUrl(match)} 
-                              alt={match.company || 'Company'} 
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                            />
-                          ) : null}
-                          <span style={{ position: getCompanyLogoUrl(match) ? 'absolute' : 'static', zIndex: 0 }}>
-                            {match.company?.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div style={{ flexGrow: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{match.company}</span>
-                            <div className="shad-badge shad-badge-outline" style={{ fontWeight: 700, color: 'var(--brand-green)' }}>
-                              <Award size={13} /> {match.matchPercent}% Score
+                {matchedJobs.slice(0, 6).map((job, idx) => {
+                  const jobId = String(job.jobId || job._id || job.id || idx);
+                  const companyName = job.company || 'Tech Leader';
+                  const jobTitle = job.title || 'Software Specialist';
+                  const location = job.location || 'Remote';
+                  const matchPercent = job.matchPercent || 88;
+                  const logoUrl = getCompanyLogoUrl(job);
+                  const isLiked = likedJobIds.includes(jobId);
+                  const isKanbanSaved = kanbanItems.some(c => String(c.id) === jobId);
+                  const skills = job.matchedSkills || job.requiredSkills || ['React', 'Node.js', 'TypeScript'];
+                  const summaryText = job.requirementsSummary || job.matchReason || '';
+
+                  return (
+                    <div
+                      key={jobId}
+                      onClick={() => openJobDrawer(job)}
+                      className="shad-card hover-lift"
+                      style={{ background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                    >
+                      <div className="shad-card-header" style={{ padding: 0 }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', minWidth: 0 }}>
+                            <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: getGradientForCompany(companyName), color: '#fff', fontWeight: 700, flexShrink: 0, position: 'relative' }}>
+                              {logoUrl ? (
+                                <img
+                                  src={logoUrl}
+                                  alt={companyName}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              ) : null}
+                              <span style={{ position: logoUrl ? 'absolute' : 'static', zIndex: 0 }}>
+                                {companyName.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div style={{ minWidth: 0 }}>
+                              <h3 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, margin: 0 }}>{companyName}</h3>
+                              <h2 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700, marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{jobTitle}</h2>
                             </div>
                           </div>
-                          <h3 className="shad-card-title" style={{ fontSize: '1.05rem', margin: 0 }}>{match.title}</h3>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+                            <div className="shad-badge shad-badge-outline" style={{ fontWeight: 700, color: 'var(--brand-green)', fontSize: '0.72rem', padding: '0.15rem 0.4rem' }}>
+                              <Award size={12} style={{ marginRight: '0.2rem' }} /> {matchPercent}%
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleLikeJob(jobId, job); }}
+                              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem', display: 'flex', alignItems: 'center' }}
+                              title={isLiked ? "Unlike job" : "Like job"}
+                            >
+                              <Heart size={18} fill={isLiked ? '#ef4444' : 'none'} color={isLiked ? '#ef4444' : '#a1a1aa'} />
+                            </button>
+                          </div>
                         </div>
                       </div>
+
+                      <div className="shad-card-content" style={{ padding: 0, marginTop: '0.6rem', flexGrow: 1 }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.4rem 0' }}>
+                          <div className="shad-badge shad-badge-secondary" style={{ gap: '0.25rem', padding: '0.15rem 0.4rem', fontSize: '0.78rem' }}>
+                            <MapPin size={11} /> {location}
+                          </div>
+                          <div className="shad-badge shad-badge-outline" style={{ gap: '0.25rem', padding: '0.15rem 0.4rem', fontSize: '0.78rem', color: 'var(--brand-green)' }}>
+                            <Coins size={11} /> Competitive
+                          </div>
+                        </div>
+
+                        {summaryText && (
+                          <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '0.5rem 0', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            {summaryText}
+                          </p>
+                        )}
+
+                        {skills.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginTop: '0.5rem' }}>
+                            {skills.slice(0, 4).map((skill, sIdx) => (
+                              <span key={sIdx} className="shad-badge shad-badge-outline" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="shad-card-footer" style={{ padding: '0.75rem 0 0 0', marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); saveJobToKanban(job); }}
+                          className="shad-btn shad-btn-outline"
+                          style={{ flex: 1, gap: '0.3rem', fontSize: '0.78rem', justifyContent: 'center', color: isKanbanSaved ? 'var(--brand-green)' : undefined, borderColor: isKanbanSaved ? 'rgba(22,163,74,0.3)' : undefined }}
+                        >
+                          {isKanbanSaved ? <BookmarkCheck size={14} /> : <BookmarkPlus size={14} />}
+                          {isKanbanSaved ? 'Saved' : 'Save to Kanban'}
+                        </button>
+                        <a href={job.applyUrl || job.apply_url || '#'} target="_blank" rel="noopener noreferrer" className="shad-btn shad-btn-primary" style={{ flex: 1, textDecoration: 'none', justifyContent: 'center', fontSize: '0.78rem', display: 'flex', alignItems: 'center' }}>
+                          Apply Now
+                        </a>
+                      </div>
                     </div>
-                    <div className="shad-card-content" style={{ padding: 0, marginTop: '0.5rem' }}>
-                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{match.requirementsSummary || match.matchReason}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1968,66 +2046,101 @@ export default function Dashboard() {
               AI Job Match Engine
             </h1>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-              {matchedJobs.map((match, idx) => {
-                const matchId = String(match.jobId || match.id || idx);
-                const isLiked = likedJobIds.includes(matchId);
-                const isKanbanSaved = kanbanItems.some(c => String(c.id) === matchId);
+              {matchedJobs.map((job, idx) => {
+                const jobId = String(job.jobId || job._id || job.id || idx);
+                const companyName = job.company || 'Tech Leader';
+                const jobTitle = job.title || 'Software Specialist';
+                const location = job.location || 'Remote';
+                const matchPercent = job.matchPercent || 88;
+                const logoUrl = getCompanyLogoUrl(job);
+                const isLiked = likedJobIds.includes(jobId);
+                const isKanbanSaved = kanbanItems.some(c => String(c.id) === jobId);
+                const skills = job.matchedSkills || job.requiredSkills || ['React', 'Node.js', 'TypeScript'];
+                const summaryText = job.requirementsSummary || job.matchReason || '';
 
                 return (
-                  <div key={idx} onClick={() => openJobDrawer(match)} className="shad-card hover-lift" style={{ background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div>
-                      <div className="shad-card-header" style={{ padding: 0 }}>
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                          <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: getGradientForCompany(match.company), color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
-                            {getCompanyLogoUrl(match) ? (
-                              <img 
-                                src={getCompanyLogoUrl(match)} 
-                                alt={match.company || 'Company'} 
+                  <div
+                    key={jobId}
+                    onClick={() => openJobDrawer(job)}
+                    className="shad-card hover-lift"
+                    style={{ background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                  >
+                    <div className="shad-card-header" style={{ padding: 0 }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', minWidth: 0 }}>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: getGradientForCompany(companyName), color: '#fff', fontWeight: 700, flexShrink: 0, position: 'relative' }}>
+                            {logoUrl ? (
+                              <img
+                                src={logoUrl}
+                                alt={companyName}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
                               />
                             ) : null}
-                            <span style={{ position: getCompanyLogoUrl(match) ? 'absolute' : 'static', zIndex: 0 }}>
-                              {match.company?.charAt(0).toUpperCase()}
+                            <span style={{ position: logoUrl ? 'absolute' : 'static', zIndex: 0 }}>
+                              {companyName.charAt(0).toUpperCase()}
                             </span>
                           </div>
-                          <div style={{ flexGrow: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{match.company}</span>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <div className="shad-badge shad-badge-outline" style={{ fontWeight: 700, color: 'var(--brand-green)' }}>
-                                  <Award size={13} /> {match.matchPercent}% Score
-                                </div>
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); toggleLikeJob(matchId, match); }}
-                                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.2rem', display: 'flex', alignItems: 'center' }}
-                                  title={isLiked ? "Unlike job" : "Like job"}
-                                >
-                                  <Heart size={18} fill={isLiked ? '#ef4444' : 'none'} color={isLiked ? '#ef4444' : '#a1a1aa'} />
-                                </button>
-                              </div>
-                            </div>
-                            <h3 className="shad-card-title" style={{ fontSize: '1.05rem', margin: 0 }}>{match.title}</h3>
+                          <div style={{ minWidth: 0 }}>
+                            <h3 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, margin: 0 }}>{companyName}</h3>
+                            <h2 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700, marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{jobTitle}</h2>
                           </div>
                         </div>
-                      </div>
-                      <div className="shad-card-content" style={{ padding: 0, marginTop: '0.5rem' }}>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{match.requirementsSummary || match.matchReason}</p>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+                          <div className="shad-badge shad-badge-outline" style={{ fontWeight: 700, color: 'var(--brand-green)', fontSize: '0.72rem', padding: '0.15rem 0.4rem' }}>
+                            <Award size={12} style={{ marginRight: '0.2rem' }} /> {matchPercent}%
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleLikeJob(jobId, job); }}
+                            style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem', display: 'flex', alignItems: 'center' }}
+                            title={isLiked ? "Unlike job" : "Like job"}
+                          >
+                            <Heart size={18} fill={isLiked ? '#ef4444' : 'none'} color={isLiked ? '#ef4444' : '#a1a1aa'} />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
+                    <div className="shad-card-content" style={{ padding: 0, marginTop: '0.6rem', flexGrow: 1 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.4rem 0' }}>
+                        <div className="shad-badge shad-badge-secondary" style={{ gap: '0.25rem', padding: '0.15rem 0.4rem', fontSize: '0.78rem' }}>
+                          <MapPin size={11} /> {location}
+                        </div>
+                        <div className="shad-badge shad-badge-outline" style={{ gap: '0.25rem', padding: '0.15rem 0.4rem', fontSize: '0.78rem', color: 'var(--brand-green)' }}>
+                          <Coins size={11} /> Competitive
+                        </div>
+                      </div>
+
+                      {summaryText && (
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '0.5rem 0', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {summaryText}
+                        </p>
+                      )}
+
+                      {skills.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginTop: '0.5rem' }}>
+                          {skills.slice(0, 4).map((skill, sIdx) => (
+                            <span key={sIdx} className="shad-badge shad-badge-outline" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="shad-card-footer" style={{ padding: '0.75rem 0 0 0', marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); saveJobToKanban(match); }}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); saveJobToKanban(job); }}
                         className="shad-btn shad-btn-outline"
                         style={{ flex: 1, gap: '0.3rem', fontSize: '0.78rem', justifyContent: 'center', color: isKanbanSaved ? 'var(--brand-green)' : undefined, borderColor: isKanbanSaved ? 'rgba(22,163,74,0.3)' : undefined }}
                       >
                         {isKanbanSaved ? <BookmarkCheck size={14} /> : <BookmarkPlus size={14} />}
-                        {isKanbanSaved ? 'Saved to Kanban' : 'Save to Kanban'}
+                        {isKanbanSaved ? 'Saved' : 'Save to Kanban'}
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); openJobDrawer(match); }} className="shad-btn shad-btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '0.78rem' }}>
-                        View Details
-                      </button>
+                      <a href={job.applyUrl || job.apply_url || '#'} target="_blank" rel="noopener noreferrer" className="shad-btn shad-btn-primary" style={{ flex: 1, textDecoration: 'none', justifyContent: 'center', fontSize: '0.78rem', display: 'flex', alignItems: 'center' }}>
+                        Apply Now
+                      </a>
                     </div>
                   </div>
                 );
@@ -2046,8 +2159,8 @@ export default function Dashboard() {
               <div style={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {chatMessages.map((msg, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-                    <div style={{ maxWidth: '75%', padding: '0.85rem 1.25rem', borderRadius: '16px', background: msg.sender === 'user' ? '#09090b' : 'rgba(0,0,0,0.03)', color: msg.sender === 'user' ? '#fff' : '#09090b', fontSize: '0.9rem' }}>
-                      {msg.text}
+                    <div style={{ maxWidth: '75%', padding: '0.85rem 1.25rem', borderRadius: '16px', background: msg.sender === 'user' ? '#09090b' : 'rgba(0,0,0,0.03)', color: msg.sender === 'user' ? '#fff' : '#09090b', fontSize: '0.9rem', lineHeight: '1.5', whiteSpace: 'pre-line' }}>
+                      {formatChatMessageText(msg.text)}
                     </div>
                   </div>
                 ))}
