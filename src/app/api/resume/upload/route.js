@@ -154,6 +154,70 @@ async function callGeminiWithRetry(prompt, apiKey, maxRetries = 3) {
   }
 }
 
+// Resilient Multi-Layer PDF Text Extractor
+async function extractTextFromPdf(buffer) {
+  let text = '';
+
+  // Layer 1: Standard pdf-parse module
+  try {
+    const pdfParse = eval("require('pdf-parse')");
+    if (typeof pdfParse === 'function') {
+      const data = await pdfParse(buffer);
+      if (data && data.text && data.text.trim().length > 20) {
+        text = data.text;
+      }
+    } else if (pdfParse && pdfParse.PDFParse) {
+      const parser = new pdfParse.PDFParse({ data: buffer });
+      const res = await parser.getText();
+      if (res && res.text && res.text.trim().length > 20) {
+        text = res.text;
+      }
+    }
+  } catch (err1) {
+    console.warn('[PDF Parser] Layer 1 pdf-parse attempt failed:', err1.message);
+  }
+
+  // Layer 2: Raw PDF parenthesis text stream regex extraction (handles custom/scanned PDF streams)
+  if (!text || text.trim().length < 20) {
+    try {
+      const str = buffer.toString('latin1');
+      const matches = str.match(/\(([^()]{2,})\)/g) || [];
+      const extracted = matches
+        .map(m => m.slice(1, -1))
+        .filter(t => /[a-zA-Z0-9]{2,}/.test(t))
+        .join(' ')
+        .replace(/\\([()\\])/g, '$1');
+
+      if (extracted && extracted.trim().length > 10) {
+        text = extracted;
+      }
+    } catch (err2) {
+      console.warn('[PDF Parser] Layer 2 stream extraction failed:', err2.message);
+    }
+  }
+
+  // Layer 3: Text operator regex fallback (handles Tj/TJ operators)
+  if (!text || text.trim().length < 20) {
+    try {
+      const rawStr = buffer.toString('utf-8');
+      const tjMatches = rawStr.match(/\[(.*?)\]\s*TJ|\((.*?)\)\s*Tj/gi) || [];
+      const cleaned = tjMatches
+        .map(m => m.replace(/[\(\)\[\]\/]/g, ' '))
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (cleaned && cleaned.length > 10) {
+        text = cleaned;
+      }
+    } catch (err3) {
+      console.warn('[PDF Parser] Layer 3 TJ operator extraction failed:', err3.message);
+    }
+  }
+
+  return text;
+}
+
 export async function POST(request) {
   try {
     const cookieStore = await cookies();
@@ -179,14 +243,16 @@ export async function POST(request) {
 
     if (file.name.toLowerCase().endsWith('.pdf')) {
       try {
-        const pdfModule = eval("require('pdf-parse')");
-        const { PDFParse } = pdfModule;
-        const parser = new PDFParse({ data: buffer });
-        const result = await parser.getText();
-        text = result.text;
+        text = await extractTextFromPdf(buffer);
       } catch (pdfErr) {
-        console.error('[Resume Upload] Failed to parse PDF:', pdfErr);
-        return NextResponse.json({ success: false, error: 'Failed to extract text from PDF resume. Make sure it is not corrupt.' }, { status: 422 });
+        console.error('[Resume Upload] Failed to extract text from PDF:', pdfErr);
+      }
+
+      if (!text || text.trim() === '') {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to extract text from PDF resume. Please make sure the PDF contains selectable text.' 
+        }, { status: 422 });
       }
     } else {
       text = buffer.toString('utf-8');
