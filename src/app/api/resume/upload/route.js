@@ -68,9 +68,11 @@ function parseResumeLocally(text, segregated) {
     'GCP', 'Azure', 'Git', 'CI/CD', 'FastAPI', 'PyTorch', 'TensorFlow', 'LLM', 'RAG'
   ];
 
-  const foundSkills = commonTech.filter(tech => 
-    new RegExp(`\\b${tech.replace('.', '\\.')}\\b`, 'i').test(text)
-  );
+  const foundSkills = commonTech.filter(tech => {
+    const escaped = tech.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = `(?:^|[^a-zA-Z0-9+#])${escaped}(?:$|[^a-zA-Z0-9+#])`;
+    return new RegExp(pattern, 'i').test(text);
+  });
 
   let candidateLevel = 'Mid-Level';
   let yoe = 0;
