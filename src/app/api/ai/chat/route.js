@@ -59,6 +59,24 @@ CRITICAL FORMATTING & LENGTH CONSTRAINTS:
 2. Address ${candidateFirstName} directly by name.
 3. Do NOT use markdown code blocks (\`\`\`), markdown bold asterisks (**text** or *text*), or markdown headers (###). Use plain clean text with simple bullet points (• ) only.`;
 
+    const persistChatToDb = async (userText, coachText) => {
+      if (user && user._id) {
+        try {
+          const usersColl = await getCollection('users');
+          const newHistory = [
+            { sender: 'user', text: userText, timestamp: new Date() },
+            { sender: 'coach', text: coachText, timestamp: new Date() }
+          ];
+          await usersColl.updateOne(
+            { _id: new ObjectId(user._id) },
+            { $push: { chatHistory: { $each: newHistory } } }
+          );
+        } catch (dbErr) {
+          console.warn('[AI Chat DB Persistence Error]:', dbErr.message);
+        }
+      }
+    };
+
     if (apiKey) {
       const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
       
@@ -84,6 +102,8 @@ CRITICAL FORMATTING & LENGTH CONSTRAINTS:
                 .replace(/\*([^*]+)\*/g, '$1')
                 .replace(/###?\s*/g, '')
                 .trim();
+
+              await persistChatToDb(message, cleanReply);
               return NextResponse.json({ success: true, reply: cleanReply });
             }
           }
@@ -98,6 +118,8 @@ CRITICAL FORMATTING & LENGTH CONSTRAINTS:
       `• Feature key skills like ${skillsText.split(', ')[0] || 'React'} and System Architecture near the top of your resume.\n` +
       `• Quantify engineering achievements with measurable metrics (e.g. reduced latency, increased throughput).\n` +
       `• Save 3 active ${user?.domainOfInterest || 'Full Stack'} engineering positions to your Kanban board today.`;
+
+    await persistChatToDb(message, fallbackReply);
 
     return NextResponse.json({
       success: true,

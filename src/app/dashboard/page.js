@@ -260,9 +260,13 @@ export default function Dashboard() {
           setUser(data.user);
           populateInfoFields(data.user);
           const firstName = data.user.name ? data.user.name.split(' ')[0] : 'Candidate';
-          setChatMessages([
-            { sender: 'coach', text: `Good day, ${firstName}! I am your Hirenova AI Command Center Assistant. How can I assist you with landing your target software engineering role today?` }
-          ]);
+          if (Array.isArray(data.user.chatHistory) && data.user.chatHistory.length > 0) {
+            setChatMessages(data.user.chatHistory);
+          } else {
+            setChatMessages([
+              { sender: 'coach', text: `Good day, ${firstName}! I am your Hirenova AI Command Center Assistant. How can I assist you with landing your target software engineering role today?` }
+            ]);
+          }
           if (Array.isArray(data.user.likedJobs)) {
             setLikedJobIds(data.user.likedJobs.map(String));
           }

@@ -95,7 +95,8 @@ export async function GET(req) {
         race: user.race || '',
         dob: user.dob || '',
         age: user.age || '',
-        educations: Array.isArray(user.educations) ? user.educations : []
+        educations: Array.isArray(user.educations) ? user.educations : [],
+        chatHistory: Array.isArray(user.chatHistory) ? user.chatHistory : []
       }
     }, { headers: corsHeaders });
 
